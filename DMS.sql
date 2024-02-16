@@ -1,3 +1,4 @@
+drop database Project_DMS;
 create database if not exists Project_DMS;
 use Project_DMS;
 
@@ -22,6 +23,12 @@ Create table if not exists Admin_Archives(
 		On Delete Cascade
 );
 
+Create table if not exists Creators (
+	Creator_ID int,
+    Creator_Type enum('User','Group'),
+    Primary Key (Creator_ID)
+);
+
 Create table if not exists Users(
 	User_ID int,
 	Has_Admin enum('Yes','No'),
@@ -44,23 +51,17 @@ Create table if not exists _Groups (
         On Delete Cascade
 );
 
-Create table if not exists Creators (
-	Creator_ID int,
-    Creator_Type enum('User','Group'),
-    Primary Key (Creator_ID)
-);
-
 Create table if not exists Diaries(
 	Diary_ID int,
     Diary_Name varchar(25),
     Owner_Type enum('User','Group'),
-    Owner_ID int not null,
+    Owner_ID int,
     Creation_Date date,
     Diary_Age date,
     Record_Num int,
     Gallery_Num int,
-	Primary Key (Owner_ID, Owner_Type, Diary_ID),
-		Foreign Key (Owner_ID, Owner_Type) references Creators(Creator_ID, Creator_Type)
+	Primary Key (Diary_ID, Owner_ID),
+		Foreign Key (Owner_ID) references Creators(Creator_ID)
 		On Delete Cascade
 );
 
@@ -80,11 +81,13 @@ Create table if not exists Records(
 Create table if not exists Galleries(
 	Gallery_ID int,
     Diary_ID int,
+	Owner_Type enum('User','Group'),
+    Owner_ID int not null,
     Creation_Date date,
     Gallery_Name varchar (25),
     Gallery_Age date,
     Record_Num int,
-    Primary Key(Galley_ID, Diary_ID),
+    Primary Key(Gallery_ID,Diary_ID),
 		Foreign Key (Diary_ID) references Diaries(Diary_ID)
 );
 
@@ -92,13 +95,13 @@ Create table if not exists Planners(
 	Planner_ID int,
     Planner_Name varchar(25),
     Owner_Type enum('User','Group'),
-    Owner_ID int not null,
+    Owner_ID int,
     Creation_Date date,
     Planner_Age date,
     Task_Num int,
     Checklist_Num int,
-	Primary Key (Owner_ID, Owner_Type, Planner_ID),
-		Foreign Key (Owner_ID, Owner_Type) references Creators(Creator_ID, Creator_Type)
+	Primary Key (Planner_ID, Owner_ID),
+		Foreign Key (Owner_ID) references Creators(Creator_ID)
 		On Delete Cascade
 );
 
@@ -118,7 +121,6 @@ Create table if not exists Tasks(
 Create table if not exists Checklists(
 	Checklist_ID int,
     Planner_ID int,
-    Creation_Date date,
     Checklist_Name varchar (25),
     Checklist_Age date,
     Task_Num int,
