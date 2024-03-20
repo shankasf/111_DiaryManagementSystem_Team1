@@ -33,11 +33,11 @@ create table records (
     in_gallery enum('Yes', 'No'),
     gallery_id int,
     creation_date date,
-    record_age date,
+    record_age_in_days int,
     record_description varchar(255)
 );
 
-insert into records (record_id, record_name, diary_id, in_gallery, gallery_id, creation_date, record_age, record_description) value
-	(1, 'Test Record',  24, 'No', 42, '2024-03-01', '2024-03-18', 'A test of the records table');
+insert into records (record_id, record_name, diary_id, in_gallery, gallery_id, creation_date, record_age_in_days, record_description) value
+	(1, 'Test Record',  24, 'No', 42, '2024-03-18', 1, 'A test of the records table');
 select * from records;
 /* drop table records; */
