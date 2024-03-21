@@ -1,6 +1,6 @@
-drop database Project_DMS;
-create database if not exists Project_DMS;
-use Project_DMS;
+drop database diary_management;
+create database if not exists diary_management;
+use diary_management;
 
 create table if not exists Admins (
   Admin_ID int primary key,
