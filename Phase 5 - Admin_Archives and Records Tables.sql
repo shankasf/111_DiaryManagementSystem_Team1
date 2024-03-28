@@ -93,7 +93,41 @@ insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Re
 	('Reference Files', 27, 'Group', 20, 74, 'General files that may be useful for later reference');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
 	('General Notes', 38, 'Group', 38, 137, 'Additional notes that are important for Admins, but do not fit anywhere else');
-    
+
+-- Admin_Users
+create table if not exists Admin_Users (
+	Admin_ID int,
+    User_ID int,
+    primary key (Admin_ID, User_ID),
+    constraint
+		foreign key (Admin_ID)
+		references Admins (Admin_ID)
+		on delete cascade,
+	constraint
+		foreign key(User_ID)
+        references Users(User_ID)
+        on delete cascade
+);
+
+select * from Admin_Users;
+-- drop table Admin_Users;
+set foreign_key_checks = 0;
+
+-- Insert Statements
+insert into Admin_Users(Admin_ID, User_ID) values
+	(42,1),
+    (26,3),
+    (29,5),
+    (10,7),
+    (3,9),
+    (32,11),
+    (12,13),
+    (14,15),
+    (27,17),
+    (38,19);
+
+select * from Admin_Users
+
 -- Records
 create table if not exists Records (
   Record_ID int not null,
