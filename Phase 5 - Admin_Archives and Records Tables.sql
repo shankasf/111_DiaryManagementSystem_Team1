@@ -159,8 +159,7 @@ insert into Records (Record_ID, Diary_ID, In_Gallery, Gallery_ID, Creation_Date,
 -- analyzed for login. If they were in separate tables, the tables would need to be combined.
 use diary_management;
 create view verifyLogin as
-	select username, password from Users
-	where User_ID = 1;
+	select username, password from Users;
 	
 select * from verifyLogin;
 --- drop view verifyLogin;
