@@ -168,11 +168,11 @@ create view verifyLogin as
 	
 select * from verifyLogin;
 -- drop view verifyLogin;
-    
+
 create table if not exists Users (
   User_ID int not null,
   username varchar(25) unique,
-  password varchar(25) unique,
+  password varchar(25),
   Has_Admin enum('Yes', 'No') not null default 'No',
   Admin_ID int,
   Creation_Date date not null,
