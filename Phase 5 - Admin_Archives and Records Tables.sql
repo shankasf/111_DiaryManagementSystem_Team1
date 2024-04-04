@@ -44,12 +44,11 @@ create table if not exists Diaries (
 
 -- Admin_Archives
 create table if not exists Admin_Archives (
-  Archive_Name varchar(25) not null,
   Admin_ID int not null,
   Creator_ID int not null,
   Record_ID int not null,
   Record_Description varchar(255),
-  primary key (Archive_Name, Admin_ID),
+  primary key (Admin_ID, Creator_ID, Record_ID),
   index (`Admin_ID` asc) visible,
   constraint 
     foreign key (Admin_ID)
@@ -61,37 +60,37 @@ select * from Admin_Archives;
 set foreign_key_checks = 0;
 -- Insert Statements
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_ID, Record_ID, Record_Description) value
-	('Old Patch Notes', 42, 54, 8, 'A collection of old patch notes for reference purposes'),
-    ('Marked for Review', 26, 26, 12, 'User accounts that may have broken broken community guidelines'),
-    ('One Strike', 29, 2, 13, 'User accounts that have broken community guidelines once'),
-    ('Two Strikes', 10, 2, 12, 'User accounts that have broken community guidelines twice'),
-    ('Banned Accounts', 3, 2, 11, 'A list of banned accounts, or user accounts that have broken community guidelines three times'),
-    ('Inactive Accounts', 32, 18, 101, 'Accounts that have not had activity for a year or more'),
-    ('Community Guidelines Copy', 12, 119, 135, 'Copy of the publicly available community guidelines'),
-    ('New Update Suggestions', 14, 47, 123, 'Viable User and Admin suggestions to include in new updates'),
-    ('Reference Files', 27, 20, 74, 'General files that may be useful for later reference'),
-    ('General Notes', 38, 38, 137, 'Additional notes that are important for Admins, but do not fit anywhere else');
+    (42, 54, 8, 'A collection of old patch notes for reference purposes'),
+    (26, 26, 12, 'User accounts that may have broken broken community guidelines'),
+    (29, 2, 13, 'User accounts that have broken community guidelines once'),
+    (10, 2, 12, 'User accounts that have broken community guidelines twice'),
+    (3, 2, 11, 'A list of banned accounts, or user accounts that have broken community guidelines three times'),
+    (32, 18, 101, 'Accounts that have not had activity for a year or more'),
+    (12, 119, 135, 'Copy of the publicly available community guidelines'),
+    (14, 47, 123, 'Viable User and Admin suggestions to include in new updates'),
+    (27, 20, 74, 'General files that may be useful for later reference'),
+    (38, 38, 137, 'Additional notes that are important for Admins, but do not fit anywhere else');
 
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-    ('Old Patch Notes', 42, 'Group', 54, 8, 'A collection of old patch notes for reference purposes');
+    (42, 'Group', 54, 8, 'A collection of old patch notes for reference purposes');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('Marked for Review', 26, 'User', 26, 12, 'User accounts that may have broken broken community guidelines');
+	(26, 'User', 26, 12, 'User accounts that may have broken community guidelines');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('One Strike', 29, 'User', 2, 13, 'User accounts that have broken community guidelines once');
+	(29, 'User', 2, 13, 'User accounts that have broken community guidelines once');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('Two Strikes', 10, 'User', 2, 12, 'User accounts that have broken community guidelines twice');
+	(10, 'User', 2, 12, 'User accounts that have broken community guidelines twice');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('Banned Accounts', 3, 'User', 2, 11, 'A list of banned accounts, or user accounts that have broken community guidelines three times');
+	(3, 'User', 2, 11, 'A list of banned accounts, or user accounts that have broken community guidelines three times');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('Inactive Accounts', 32, 'User', 18, 101, 'Accounts that have not had activity for a year or more');
+	(32, 'User', 18, 101, 'Accounts that have not had activity for a year or more');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('Community Guidelines Copy', 12, 'Group', 119, 135, 'Copy of the publicly available community guidelines');
+	(12, 'Group', 119, 135, 'Copy of the publicly available community guidelines');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('New Update Suggestions', 14, 'Group', 47, 123, 'Viable User and Admin suggestions to include in new updates');
+	(14, 'Group', 47, 123, 'Viable User and Admin suggestions to include in new updates');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('Reference Files', 27, 'Group', 20, 74, 'General files that may be useful for later reference');
+	(27, 'Group', 20, 74, 'General files that may be useful for later reference');
 insert into Admin_Archives (Archive_Name, Admin_ID, Creator_Type, Creator_ID, Record_ID, Record_Description) value
-	('General Notes', 38, 'Group', 38, 137, 'Additional notes that are important for Admins, but do not fit anywhere else');
+	(38, 'Group', 38, 137, 'Additional notes that are important for Admins, but do not fit anywhere else');
     
 -- Records
 create table if not exists Records (
