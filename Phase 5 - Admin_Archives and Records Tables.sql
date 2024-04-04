@@ -158,16 +158,12 @@ insert into Records (Record_ID, Diary_ID, In_Gallery, Gallery_ID, Creation_Date,
 -- Views describe tables that might need to be joined. For example, both username and password have to be
 -- analyzed for login. If they were in separate tables, the tables would need to be combined.
 use diary_management;
--- The final login page checks the input from the user against the table
--- If there is a username AND password in the same row that matches the Python input, then the user is verified.
--- The final section of this view can only be added once we start setting up the end-user side.
--- Then, the input fields will have their own values that can be used in the WHERE section.
 create view verifyLogin as
-	select * from Users
-	where username = '' and password = '';
+	select username, password from Users
+	where User_ID = 1;
 	
 select * from verifyLogin;
--- drop view verifyLogin;
+--- drop view verifyLogin;
 
 create table if not exists Users (
   User_ID int not null,
