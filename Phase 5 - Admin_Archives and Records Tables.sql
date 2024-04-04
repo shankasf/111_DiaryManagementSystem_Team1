@@ -147,3 +147,49 @@ insert into Records (Record_ID, Diary_ID, In_Gallery, Gallery_ID, Creation_Date,
 	(98, 9, 'Yes', 71, '2024-03-13', 14, 'Holidays', 'Diaries dedicated to various holidays');
 insert into Records (Record_ID, Diary_ID, In_Gallery, Gallery_ID, Creation_Date, Record_Age, Record_Name, Record_Description) value
 	(100, 10, 'Yes', 80, '2024-03-21', 6, 'College Diaries', 'Diaries documenting the college experiences of their creators');
+    
+    
+    
+    
+    
+    
+    
+    
+-- Views describe tables that might need to be joined. For example, both username and password have to be
+-- analyzed for login. If they were in separate tables, the tables would need to be combined.
+use diary_management;
+-- The final login page checks the input from the user against the table
+-- If there is a username AND password in the same row that matches the Python input, then the user is verified.
+-- The final section of this view can only be added once we start setting up the end-user side.
+-- Then, the input fields will have their own values that can be used in the WHERE section.
+create view verifyLogin as
+	select * from Users
+	where username = '' and password = '';
+	
+select * from verifyLogin;
+-- drop view verifyLogin;
+    
+create table if not exists Users (
+  User_ID int not null,
+  username varchar(25) unique,
+  password varchar(25) unique,
+  Has_Admin enum('Yes', 'No') not null default 'No',
+  Admin_ID int,
+  Creation_Date date not null,
+  Account_Age int not null,
+  primary key (User_ID),
+  index (Admin_ID asc) visible,
+  constraint
+    foreign key (User_ID)
+    references Creators (Creator_ID)
+    on delete cascade,
+  constraint
+    foreign key (Admin_ID)
+    references Admins (Admin_ID)
+    on delete no action
+    on update no action);
+SET FOREIGN_KEY_CHECKS = 0;
+insert into users(user_id, username, password, has_admin, admin_id, creation_date, account_age) value
+	(1, 'PixieNixie', '123456', 'yes', 7, '2024-03-20', 1),
+	(2, 'HertBert', '98765', 'no', null, '2024-03-01', 1),
+    (3, 'LeggoMyEggo', 'Sh00pDaW00p', 'yes', 7, '2020-03-08', 4);
