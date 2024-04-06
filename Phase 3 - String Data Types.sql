@@ -66,3 +66,16 @@ drop table stars;
 /* And like CHAR and VARCHAR, you cannot insert a value that exceeds the set maximum value */
 insert into stars (list_number, star_name, radius_x_that_of_sun, distance_from_sun_in_light_years, speed_in_km_per_sec) values
 	(54, 'Sun', 0, 0, 251);
+
+/* BLOB */
+create table blob_data_type (
+	blobDescription BLOB,
+	textDescription TINYTEXT,
+	level ENUM('L_one', 'L_two', 'L_three'),
+	col SET('a', 'b', 'c')
+);
+
+insert into blob_data_type (blobDescription, textDescription, level, col)
+ values ('Blob description', 'text','L_one', 'a');
+ 
+ select * from blob_data_type;
