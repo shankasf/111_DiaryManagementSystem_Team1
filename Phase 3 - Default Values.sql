@@ -20,6 +20,14 @@ CREATE TABLE students (
     enrollment DATE DEFAULT (CURDATE())
 );
 
+-- Normal Value Insertion
+INSERT INTO students (name) VALUES ('Erick');
+INSERT INTO students (age) VALUES (19);
+INSERT INTO students (age, enrollment_date) VALUES (19, '2022-09-15');
+
+SELECT * FROM students;
+TRUNCATE students;
+
 --  Default Value Insertion
 INSERT INTO students VALUES();
 INSERT INTO students VALUES(DEFAULT,DEFAULT,DEFAULT,DEFAULT);
