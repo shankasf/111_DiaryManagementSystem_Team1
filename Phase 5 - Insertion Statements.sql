@@ -7,8 +7,61 @@ Phase 5: Creators, Diaries, _Groups, Galleries, Planners, Tasks, and Checklists
 
 create database if not exists diary_management;
 use diary_management;
-# drop database diary_management;
+-- drop database diary_management;
+-- set foreign_key_checks = 0;
+-- set foreign_key_checks = 1;
 
+-- Admins
+create table if not exists Admins(
+  Admins_ID int primary key,
+  Admin_name varchar(25) not null,
+  Creation_date date not null,
+  Account_age int not null,
+  Archive_num int not null
+);
+
+insert into Admins(Admins_ID, Admin_name, Creation_date, Account_age, Archive_num) values
+(7, 'Jesus', '2024-03-20', 1, 2),
+(6, 'Solomon', '2024-12-17', 1, 6),
+(11, 'Cayleigh', '2024-01-11', 1, 11),
+(8, 'Erik', '2024-02-17', 1, 8),
+(9, 'Cheryl', '2024-03-19', 1, 9),
+(10, 'Jakie', '2003-03-16', 21, 10),
+(1, 'Sandra', '2002-12-17', 21, 1),
+(2, 'Jovanna', '2003-11-28', 20, 2),
+(3, 'Melanie', '2003-07-30', 20, 3),
+(4, 'Lesly', '2003-04-10', 20, 4,
+(5, 'Jalen', '2002-03-27', 22, 5);
+select * from Admins;
+
+-- Admin_Archives
+create table if not exists Admin_Archives (
+  Admin_ID int not null,
+  Creator_ID int not null,
+  Record_ID int not null,
+  Record_Description varchar(255),
+  primary key (Admin_ID, Creator_ID, Record_ID),
+  index (`Admin_ID` asc) visible,
+  constraint 
+    foreign key (Admin_ID)
+    references Admins (Admin_ID)
+    on delete cascade
+);
+
+insert into Admin_Archives(Admin_ID, Creator_type, Creator_ID, Record_description) values
+(42, 54, 8, 'A collection of old patch notes for reference purposes'),
+(26, 26, 12, 'User accounts that may have broken broken community guidelines'),
+(29, 2, 13, 'User accounts that have broken community guidelines once'),
+(10, 2, 12, 'User accounts that have broken community guidelines twice'),
+(3, 2, 11, 'A list of banned accounts, or user accounts that have broken community guidelines three times'),
+(32, 18, 101, 'Accounts that have not had activity for a year or more'),
+(12, 119, 135, 'Copy of the publicly available community guidelines'),
+(14, 47, 123, 'Viable User and Admin suggestions to include in new updates'),
+(27, 20, 74, 'General files that may be useful for later reference'),
+(38, 38, 137, 'Additional notes that are important for Admins, but do not fit anywhere else');
+Select * from Admin_Archives;
+
+-- Creators
 create table if not exists Creators (
   Creator_ID int not null primary key,
   Creator_Type enum('User', 'Group') not null default 'User'
@@ -27,7 +80,7 @@ insert into Creators (Creator_ID, Creator_Type) values
 (10, 'Group');
 select * from Creators;
 
-
+-- Diaries
 create table if not exists Diaries (
   Diary_ID int not null,
   Diary_Name varchar(25),
@@ -58,7 +111,39 @@ insert into Diaries (Diary_ID, Diary_Name, Owner_Type, Owner_ID, Creation_Date, 
 (10, 'Event Diary', 'Group', 5, '2024-10-01', 1, 13, 5);
 select * from Diaries;
 
+-- Users
+create table Users (
+User_id int primary key,
+Has_admin enum('Yes', 'No') not null default 'No',
+Admins_ID int,
+foreign key(Admins_id) references Admins(Admins_id),
+Creation_date date not null,
+Account_age int not null,
+constraint 
+	foreign key (User_id)
+    references Creators (Creator_id)
+    on delete cascade,
+constraint
+	foreign key (Admins_id)
+	references Admins(Admins_id)
+    on delete no action
+    on update no action
+);
 
+insert into Users(User_id, Has_admin, Admins_ID,  Creation_date, Account_age) values
+(1, 'Yes', 7, '2024-03-20', 1),
+(2, 'Yes', null, '2024-03-01', 1),
+(3, 'Yes', 5, '2024-03-02', 1),
+(4, 'No', null, '2022-03-01', 2),
+(5, 'Yes', 7, '2020-03-08', 4),
+(6, 'No', null, '2024-03-10', 1),
+(7, 'Yes', 8, '2021-01-06', 3),
+(8, 'Yes', 10, '2024-03-16', 1),
+(9, 'No', null, '2021-03-18', 3),
+(10, 'Yes', 2, '2021-04-18', 3);
+Select * from Users;
+
+-- _Groups
 create table if not exists _Groups (
   Group_ID int not null primary key,
   Creator_ID int not null,
@@ -85,7 +170,38 @@ insert into _Groups (Group_ID, Creator_ID, Creation_Date, Group_Age, Member_Num)
 (10, 10, '2022-10-15', 4, 8);
 select * from _Groups;
 
+-- Records
+create table if not exists Records (
+  Record_ID int not null,
+  Diary_ID int not null,
+  In_Gallery enum('Yes', 'No') default 'No',
+  Gallery_ID int,
+  Creation_Date date not null,
+  Record_Age int not null,
+  Record_Name varchar(25),
+  Record_Description varchar(255),
+  primary key (Record_ID, Diary_ID),
+  index (Diary_ID asc) visible,
+  constraint 
+    foreign key (Diary_ID)
+    references Diaries (Diary_ID)
+	on delete cascade
+);
 
+insert into Records (Record_ID, Diary_ID, In_Gallery, Gallery_ID, Creation_Date, Record_Age, Record_Name, Record_Description) value
+(10, 1, 'Yes', 6, '2024-01-01', 86, 'Cooking Diaries', 'Diaries about various cooking topics'),
+(21, 2, 'No', 13, '2024-01-15', 72, 'Personal Diaries', 'General personal diaries that only the creator can view'),
+(32, 3, 'Yes', 18, '2024-01-26', 61, 'Workout Diaries', 'Diaries detailing workout routines'),
+(43, 4, 'Yes', 25, '2024-02-07', 49, 'Wonderful World of Pets', 'Diaries about pets'),
+(54, 5, 'No', 32, '2024-02-12', 44, 'Recovery', 'Personal diaries detailing the physical or mental recovery process of their creator'),
+(65, 6, 'Yes', 47, '2024-02-20', 36, 'Poems', 'Diaries showcasing poetry'),
+(76, 7, 'No', 54, '2024-02-29', 27, 'Venting', 'Private diaries for venting negative emotions'),
+(87, 8, 'Yes', 66, '2024-03-01', 26, 'Mechanics', 'Diaries that explore and exhibit how to fix various mechanical issues'),
+(98, 9, 'Yes', 71, '2024-03-13', 14, 'Holidays', 'Diaries dedicated to various holidays'),
+(100, 10, 'Yes', 80, '2024-03-21', 6, 'College Diaries', 'Diaries documenting the college experiences of their creators');
+Select * from Records;
+
+-- Galleries
 create table if not exists Galleries (
   Gallery_ID int not null,
   Diary_ID int not null,
@@ -117,6 +233,7 @@ insert into Galleries (Gallery_ID, Diary_ID, Owner_Type, Owner_ID, Creation_Date
 (10, 10, 'Group', 5, '2024-10-15', 'Gallery 10', 4, 8);
 select * from Galleries;
 
+-- Planners
 create table if not exists Planners (
   Planner_ID int not null,
   Planner_Name varchar(25),
@@ -148,7 +265,7 @@ insert into Planners (Planner_ID, Planner_Name, Owner_Type, Owner_ID, Creation_D
 (10, 'Planner 10', 'Group', 5, '2024-10-15', 4, 8, 5);
 select * from Planners;
 
-
+-- Tasks
 create table if not exists Tasks (
   Task_ID  int not null,
   Planner_ID int not null,
@@ -170,17 +287,17 @@ create table if not exists Tasks (
 insert into Tasks (Task_ID, Planner_ID, In_Checklist, Checklist_ID, Creation_Date, Task_Due_Date, Task_Name, Task_Description) values
 (1, 1, 'Yes', 1, '2024-01-01', '2024-01-15', 'Task 1', 'Description for Task 1'),
 (2, 2, 'No', 2, '2024-02-05', '2024-02-20', 'Task 2', 'Description for Task 2'),
-(3, 3, 'Yes', 3 , '2024-03-10', '2024-03-25', 'Task 3', 'Description for Task 3'),
-(4, 4, 'No', 4 , '2024-04-15', '2024-04-30', 'Task 4', 'Description for Task 4'),
-(5, 5, 'Yes', 5 , '2024-05-20', '2024-06-05', 'Task 5', 'Description for Task 5'),
-(6, 6, 'Yes', 6 , '2024-06-25', '2024-07-10', 'Task 6', 'Description for Task 6'),
+(3, 3, 'Yes', 3, '2024-03-10', '2024-03-25', 'Task 3', 'Description for Task 3'),
+(4, 4, 'No', 4, '2024-04-15', '2024-04-30', 'Task 4', 'Description for Task 4'),
+(5, 5, 'Yes', 5, '2024-05-20', '2024-06-05', 'Task 5', 'Description for Task 5'),
+(6, 6, 'Yes', 6, '2024-06-25', '2024-07-10', 'Task 6', 'Description for Task 6'),
 (7, 7, 'No', 7, '2024-07-30', '2024-08-15', 'Task 7', 'Description for Task 7'),
 (8, 8, 'No', 8, '2024-08-05', '2024-08-20', 'Task 8', 'Description for Task 8'),
 (9, 9, 'Yes', 9, '2024-09-10', '2024-09-25', 'Task 9', 'Description for Task 9'),
 (10, 10, 'Yes', 10, '2024-10-15', '2024-10-30', 'Task 10', 'Description for Task 10');
 select * from Tasks;
 
-
+-- Checklists
 create table if not exists Checklists (
   Checklist_ID int not null,
   Planner_ID int not null,
