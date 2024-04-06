@@ -6,7 +6,7 @@ Phase 6
 */
 
 create view verifyLogin as
-select username, password from Users;
+select Username, Password from Users;
 select * from verifyLogin;
 --- drop view verifyLogin;
 
@@ -21,7 +21,7 @@ select * from Admin_Adminee_Established;
 -- drop view Admin_Adminee_Established;
 
 create view Admin_Archived_Record as 
-select Admin_ID, Creator_ID, Record_ID from Admin_archives;
+select Admin_ID, Creator_ID, Record_ID from Admin_Archives;
 select * from Admin_Archived_Record;
 -- drop view Admin_Archved_Record;
 
