@@ -114,7 +114,6 @@ constraint
 create table if not exists Galleries (
 Gallery_ID int not null,
 Diary_ID int not null,
-Owner_Type enum('User', 'Default') default 'User',
 Creation_Date date not null, 
 Gallery_Name varchar(25),
 Gallery_Age int not null, 
