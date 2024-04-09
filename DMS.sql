@@ -1,42 +1,57 @@
-drop database diary_management;
+/* 
+Team 1
+4/3/2024
+CMPT 308N Section 111 (Database Management)
+Phase 6
+*/
+
+set foreign_key_checks = 0;
 create database if not exists diary_management;
 use diary_management;
 
 create table if not exists Admins (
-  Admin_ID int primary key,
-  Name varchar(25) not null,
-  Creation_Date date not null,
-  Account_Age int not null,
-  Archive_Num int not null
+Admin_ID int primary key,
+Admin_name varchar(25) not null,
+Creation_Date date not null,
+Account_age int not null,
+Archive_num int not null
+);
+
+create table if not exists Admin_Users (
+Admin_ID int,
+Creator_ID int,
+Adminee_Status enum ('Requested', 'Established') default 'Requested',
+primary key (Admin_ID, Creator_ID),
+constraint
+    foreign key (Admin_ID)
+    references Admins (Admin_ID)
+    on delete cascade,
+constraint
+    foreign key (Creator_ID)
+    references Creator(Creator_ID)
+    on delete cascade
 );
 
 create table if not exists Admin_Archives (
-  Archive_Name varchar(25) not null,
-  Admin_ID int not null,
-  Creator_Type enum('User', 'Group') not null default 'User',
-  Creator_ID int not null,
-  Record_ID int not null,
-  Record_Description varchar(255),
-  primary key (Archive_Name, Admin_ID),
-  index (`Admin_ID` asc) visible,
-  constraint 
-    foreign key (Admin_ID)
-    references Admins (Admin_ID)
-    on delete cascade);
-
-create table if not exists Creators (
-  Creator_ID int not null primary key,
-  Creator_Type enum('User', 'Group') not null default 'User'
- );
+Admin_ID int not null,
+Creator_ID int not null,
+Record_ID int not null, 
+Record_Description varchar(255),
+primary key (Admin_ID, Creator_ID, Record_ID),
+constraint 
+  foreign key (Admin_ID)
+  references Admins(Admin_ID)
+  on delete cascade
+);
 
 create table if not exists Users (
-  User_ID int not null,
+  User_ID int primary key,
+  Username varchar(25) unique,
+  Password varchar(25),
   Has_Admin enum('Yes', 'No') not null default 'No',
   Admin_ID int,
   Creation_Date date not null,
   Account_Age int not null,
-  primary key (User_ID),
-  index (Admin_ID asc) visible,
   constraint
     foreign key (User_ID)
     references Creators (Creator_ID)
@@ -45,69 +60,70 @@ create table if not exists Users (
     foreign key (Admin_ID)
     references Admins (Admin_ID)
     on delete no action
-    on update no action);
-
-create table if not exists _Groups (
-  Group_ID int not null primary key,
-  Creator_ID int not null,
-  Creation_Date date not null,
-  Group_Age int not null,
-  Member_Num int not null,
-  constraint
-    foreign key (Group_ID)
-    references Creators (Creator_ID)
-    on delete cascade
+    on update no action
 );
 
+create table if not exists _Groups (
+Group_ID int not null primary key,
+Creator_ID int not null,
+Creation_Date date not null,
+Group_Age int not null,
+Member_Num int not null, 
+constraint 
+  foreign key (Group_ID)
+  references Creators (Creator_ID)
+  on delete cascade
+);
+
+
+create table if not exists Creators (
+  Creator_ID int not null primary key,
+  Creator_Type enum('User', 'Group') not null default 'User'
+ );
+
 create table if not exists Diaries (
-  Diary_ID int not null,
-  Diary_Name varchar(25),
-  Owner_Type enum('User', 'Group') not null default 'User',
-  Owner_ID int not null,
-  Creation_Date date not null,
-  Diary_Age int not null,
-  Record_Num int not null,
-  Gallery_Num int not null,
-  primary key (`Diary_ID`, `Owner_ID`),
-  index (`Owner_ID` asc) visible,
-  constraint
-    foreign key (`Owner_ID`)
+Diary_ID int not null,
+Diary_Name varchar(25),
+Owner_Type enum('User', 'Group') not null default 'User',
+Owner_ID int not null,
+Creation_Date date not null,
+Diary_Age int not null,
+Record_Num int not null,
+Gallery_Num int not null,
+  primary key (Diary_ID, Owner_ID),
+  constraint 
+    foreign key (Owner_ID)
     references Creators (Creator_ID)
     on delete cascade
 );
 
 create table if not exists Records (
-  Record_ID int not null,
-  Diary_ID int not null,
-  In_Gallery enum('Yes', 'No') default 'No',
-  Galley_ID int,
-  Creation_Date date not null,
-  Record_Age int not null,
-  Record_Name varchar(25),
-  Record_Description varchar(255),
-  primary key (Record_ID, Diary_ID),
-  index (Diary_ID asc) visible,
-  constraint 
-    foreign key (Diary_ID)
-    references Diaries (Diary_ID)
-	on delete cascade
+Record_ID int not null,
+Diary_ID int not null,
+In_Gallery enum('Yes','No') default 'No',
+Gallery_ID int,
+Record_Age int not null,
+Record_Name varchar(25),
+primary key (Record_ID, Diary_ID),
+constraint 
+  foreign key (Diary_ID)
+  references Diaries (Diary_ID)
+  on delete cascade
 );
 
 create table if not exists Galleries (
-  Gallery_ID int not null,
-  Diary_ID int not null,
-  Owner_Type enum('User', 'Group') default 'User',
-  Owner_ID int not null,
-  Creation_Date date not null,
-  Gallery_Name varchar(25),
-  Gallery_Age int not null,
-  Record_Num int not null,
-  primary key (Gallery_ID, Diary_ID),
-  index (Diary_ID asc) visible,
-  constraint
-    foreign key (Diary_ID)
-    references Diaries (Diary_ID)
-    on delete cascade
+Gallery_ID int not null,
+Diary_ID int not null,
+Owner_Type enum('User', 'Default') default 'User',
+Creation_Date date not null, 
+Gallery_Name varchar(25),
+Gallery_Age int not null, 
+Record_Num int not null,
+primary key (Gallery_ID, Diary_ID),
+constraint 
+  foreign key (Diary_ID)
+  references Diaries (Diary_ID)
+  on delete cascade
 );
 
 create table if not exists Planners (
@@ -120,7 +136,6 @@ create table if not exists Planners (
   Task_Num int not null,
   Checklist_Num int not null,
   primary key (Planner_ID, Owner_ID),
-  index (Owner_ID asc) visible,
   constraint 
     foreign key (Owner_ID)
     references Creators (Creator_ID)
@@ -137,7 +152,6 @@ create table if not exists Tasks (
   Task_Name varchar(25) ,
   Task_Description varchar(255),
   primary key (Task_ID, Planner_ID),
-  index (Planner_ID asc) visible, 
   constraint 
     foreign key (Planner_ID)
     references Planners (Planner_ID)
@@ -151,9 +165,10 @@ create table if not exists Checklists (
   Checklist_Age int not null,
   Task_Num int not null,
   primary key (Checklist_ID, Planner_ID),
-  index (Planner_ID asc) visible,
   constraint
     foreign key (Planner_ID)
     references Planners (Planner_ID)
     on delete cascade
 );
+
+set foreign_key_checks = 1;
