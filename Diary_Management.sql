@@ -161,6 +161,7 @@ create table if not exists Checklists (
   Checklist_ID int not null,
   Planner_ID int not null,
   Checklist_Name varchar(25),
+  Creation_Date date not null,
   Checklist_Age int not null,
   Task_Num int not null,
   primary key (Checklist_ID, Planner_ID),
