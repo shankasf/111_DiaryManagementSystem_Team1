@@ -11,10 +11,10 @@ use diary_management;
 
 create table if not exists Admins (
 Admin_ID int primary key,
-Admin_name varchar(25) not null,
+Admin_Name varchar(25) not null,
 Creation_Date date not null,
-Account_age int not null,
-Archive_num int not null
+Account_Age int not null,
+Archive_Num int not null
 );
 
 create table if not exists Admin_Users (
