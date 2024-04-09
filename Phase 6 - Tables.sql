@@ -4,12 +4,13 @@ Team 1
 CMPT 308N Section 111 (Database Management)
 Phase 6
 */
-drop database diary_management;
+
+set foreign_key_checks = 0;
 create database if not exists diary_management;
 use diary_management;
 
 create table if not exists Admins (
-Admins_ID int primary key,
+Admin_ID int primary key,
 Admin_name varchar(25) not null,
 Creation_Date date not null,
 Account_age int not null,
@@ -19,8 +20,8 @@ Archive_num int not null
 create table if not exists Admin_Users (
 Admin_ID int,
 Creator_ID int,
-Adminee_Status enum ('Requested', 'Established') default 'Requested'
-primary key (Admin_ID, Creator_ID)
+Adminee_Status enum ('Requested', 'Established') default 'Requested',
+primary key (Admin_ID, Creator_ID),
 constraint
     foreign key (Admin_ID)
     references Admins (Admin_ID)
@@ -169,3 +170,5 @@ create table if not exists Checklists (
     references Planners (Planner_ID)
     on delete cascade
 );
+
+set foreign_key_checks = 1;
