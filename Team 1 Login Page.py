@@ -10,6 +10,7 @@ loginWindow.configure(bg = 'light blue')
 
 
 #Functions
+#If having trouble connecting, check that the user and password are correct
 db = mysql.connector.connect (
     host = "localhost",
     #Username and password must be the same as in mySQL
@@ -25,9 +26,12 @@ strikes = 0
 def submit():
     #Python won't let you use a variable from outside the function unless you use this 'global' declaration in the function
     global strikes
+    #You can't measure an entry's length by itself, but you can take it and apply it to another variable
+    #Then you can measure, use, apply, etc the variable
     username = usernameInput.get()
     password = passwordInput.get()
     if len(username) == 0 or len(password) == 0:
+        #The .config is how you change the labels after they are initially created
         blankSpace.config(bg = 'skyblue', fg = 'black')
         warning.config(bg = '#F0F0F0', fg = '#F0F0F0')
         warningTitle.config(bg = '#F0F0F0', fg = '#F0F0F0')
@@ -36,7 +40,9 @@ def submit():
         print(password)
         blankSpace.config(bg = '#F0F0F0', fg = '#F0F0F0')
         cursor.execute("""SELECT username, password FROM Users WHERE username=%s AND password=%s""", (username, password))
+        #.fetchall prints all the results that cursor returned
         found = cursor.fetchall()
+        #The user has three tries, then the application closes.
         if len(found) == 0:
             if strikes <= 1:
                 warning.config(bg = 'red', fg = 'black')
