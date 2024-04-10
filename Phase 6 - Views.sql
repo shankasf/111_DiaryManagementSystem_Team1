@@ -13,12 +13,12 @@ select * from verifyLogin;
 --- drop view verifyLogin;
 
 create view Admin_Adminee_Requests as
-select Admin_ID, Creator_ID where Adminee_Status = 'Requested';
+select Admin_ID, Creator_ID from Admin_Users where Adminee_Status = 'Requested';
 select * from Admin_Adminee_Requests;
 -- drop view Admin_Adminee_Requests;
 
 create view Admin_Adminee_Established as
-select Admin_ID, Creator_ID where Adminee_Status = 'Established';
+select Admin_ID, Creator_ID from Admin_Users where Adminee_Status = 'Established';
 select * from Admin_Adminee_Established;
 -- drop view Admin_Adminee_Established;
 
@@ -28,14 +28,9 @@ select * from Admin_Archived_Record;
 -- drop view Admin_Archved_Record;
 
 create view Admin_Search as
-select Admin_ID, User_ID from Admin_Users;
+select Admin_ID, Creator_ID from Admin_Users;
 select * from Admin_Search;
 -- drop view Admin_Search;
-
-create view NonArchived_Records as
-select Admin_ID, Creator_ID, Record_ID from Admin_Archives;
-select * from NonArchived_Records;
--- drop view NonArchived_Records;
 
 create view Group_Search as
 select Group_ID, User_ID from _Groups full join Users;
@@ -45,7 +40,7 @@ select * from Group_Search;
 create view Diary_Info as 
 select Diaries.Diary_ID, Creator_ID, Record_ID, Galleries.Gallery_ID
 from Diaries
-join Galleries on Diaries.Diary.ID = Galleries.Diary_ID
+join Galleries on Diaries.Diary_ID = Galleries.Diary_ID
 join Records on Diaries.Diary_ID = Records.Diary_ID
 join Creators on Creators.Creator_ID = Creator_ID;
 select * from Diary_Info;
