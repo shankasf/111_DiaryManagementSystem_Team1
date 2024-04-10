@@ -4,6 +4,8 @@ Team 1
 CMPT 308N Section 111 (Database Management)
 Phase 6
 */
+create database if not exists diary_management;
+use diary_management;
 
 create view verifyLogin as
 select Username, Password from Users;
