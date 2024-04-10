@@ -12,15 +12,7 @@ use diary_management;
 -- set foreign_key_checks = 1;
 
 -- Admins
-create table if not exists Admins(
-  Admins_ID int primary key,
-  Admin_name varchar(25) not null,
-  Creation_date date not null,
-  Account_age int not null,
-  Archive_num int not null
-);
-
-insert into Admins(Admins_ID, Admin_name, Creation_date, Account_age, Archive_num) values
+insert into Admins(Admin_ID, Admin_Name, Creation_Date, Account_Age, Archive_Num) values
 (7, 'Jesus', '2024-03-20', 1, 2),
 (6, 'Solomon', '2024-12-17', 1, 6),
 (11, 'Cayleigh', '2024-01-11', 1, 11),
@@ -30,25 +22,27 @@ insert into Admins(Admins_ID, Admin_name, Creation_date, Account_age, Archive_nu
 (1, 'Sandra', '2002-12-17', 21, 1),
 (2, 'Jovanna', '2003-11-28', 20, 2),
 (3, 'Melanie', '2003-07-30', 20, 3),
-(4, 'Lesly', '2003-04-10', 20, 4,
+(4, 'Lesly', '2003-04-10', 20, 4),
 (5, 'Jalen', '2002-03-27', 22, 5);
 select * from Admins;
 
--- Admin_Archives
-create table if not exists Admin_Archives (
-  Admin_ID int not null,
-  Creator_ID int not null,
-  Record_ID int not null,
-  Record_Description varchar(255),
-  primary key (Admin_ID, Creator_ID, Record_ID),
-  index (`Admin_ID` asc) visible,
-  constraint 
-    foreign key (Admin_ID)
-    references Admins (Admin_ID)
-    on delete cascade
-);
+-- Admins_Users
+insert into Admin_Users(Admin_ID, Creator_ID) values
+(0,1),
+(1,2),
+(2,4),
+(3,3),
+(4,9),
+(5,5),
+(6,6),
+(7,7),
+(8,8),
+(9,16),
+(10,10);
+select * from Admin_Users;
 
-insert into Admin_Archives(Admin_ID, Creator_type, Creator_ID, Record_description) values
+-- Admin_Archives
+insert into Admin_Archives(Admin_ID, Creator_ID, Record_ID, Record_Description) values
 (42, 54, 8, 'A collection of old patch notes for reference purposes'),
 (26, 26, 12, 'User accounts that may have broken broken community guidelines'),
 (29, 2, 13, 'User accounts that have broken community guidelines once'),
@@ -62,11 +56,6 @@ insert into Admin_Archives(Admin_ID, Creator_type, Creator_ID, Record_descriptio
 Select * from Admin_Archives;
 
 -- Creators
-create table if not exists Creators (
-  Creator_ID int not null primary key,
-  Creator_Type enum('User', 'Group') not null default 'User'
- );
- 
 insert into Creators (Creator_ID, Creator_Type) values
 (1, 'User'),
 (2, 'Group'),
@@ -81,23 +70,6 @@ insert into Creators (Creator_ID, Creator_Type) values
 select * from Creators;
 
 -- Diaries
-create table if not exists Diaries (
-  Diary_ID int not null,
-  Diary_Name varchar(25),
-  Owner_Type enum('User', 'Group') not null default 'User',
-  Owner_ID int not null,
-  Creation_Date date not null,
-  Diary_Age int not null,
-  Record_Num int not null,
-  Gallery_Num int not null,
-  primary key (`Diary_ID`, `Owner_ID`),
-  index (`Owner_ID` asc) visible,
-  constraint
-    foreign key (`Owner_ID`)
-    references Creators (Creator_ID)
-    on delete cascade
-);
-
 insert into Diaries (Diary_ID, Diary_Name, Owner_Type, Owner_ID, Creation_Date, Diary_Age, Record_Num, Gallery_Num) values
 (1, 'Personal Diary', 'User', 1, '2024-01-01', 1, 5, 3),
 (2, 'Work Diary', 'User', 2, '2024-02-01', 1, 10, 5),
@@ -112,25 +84,7 @@ insert into Diaries (Diary_ID, Diary_Name, Owner_Type, Owner_ID, Creation_Date, 
 select * from Diaries;
 
 -- Users
-create table Users (
-User_id int primary key,
-Has_admin enum('Yes', 'No') not null default 'No',
-Admins_ID int,
-foreign key(Admins_id) references Admins(Admins_id),
-Creation_date date not null,
-Account_age int not null,
-constraint 
-	foreign key (User_id)
-    references Creators (Creator_id)
-    on delete cascade,
-constraint
-	foreign key (Admins_id)
-	references Admins(Admins_id)
-    on delete no action
-    on update no action
-);
-
-insert into Users(User_id, Has_admin, Admins_ID,  Creation_date, Account_age) values
+insert into Users(User_ID, Has_Admin, Admin_ID,  Creation_Date, Account_Age) values
 (1, 'Yes', 7, '2024-03-20', 1),
 (2, 'Yes', null, '2024-03-01', 1),
 (3, 'Yes', 5, '2024-03-02', 1),
@@ -144,19 +98,6 @@ insert into Users(User_id, Has_admin, Admins_ID,  Creation_date, Account_age) va
 Select * from Users;
 
 -- _Groups
-create table if not exists _Groups (
-  Group_ID int not null primary key,
-  Creator_ID int not null,
-  Creation_Date date not null,
-  Group_Age int not null,
-  Member_Num int not null,
-  constraint
-    foreign key (Group_ID)
-    references Creators (Creator_ID)
-    on delete cascade
-);
-
-
 insert into _Groups (Group_ID, Creator_ID, Creation_Date, Group_Age, Member_Num) values
 (1, 1, '2022-01-01', 2, 5),
 (2, 2, '2022-02-05', 3, 8),
@@ -171,23 +112,6 @@ insert into _Groups (Group_ID, Creator_ID, Creation_Date, Group_Age, Member_Num)
 select * from _Groups;
 
 -- Records
-create table if not exists Records (
-  Record_ID int not null,
-  Diary_ID int not null,
-  In_Gallery enum('Yes', 'No') default 'No',
-  Gallery_ID int,
-  Creation_Date date not null,
-  Record_Age int not null,
-  Record_Name varchar(25),
-  Record_Description varchar(255),
-  primary key (Record_ID, Diary_ID),
-  index (Diary_ID asc) visible,
-  constraint 
-    foreign key (Diary_ID)
-    references Diaries (Diary_ID)
-	on delete cascade
-);
-
 insert into Records (Record_ID, Diary_ID, In_Gallery, Gallery_ID, Creation_Date, Record_Age, Record_Name, Record_Description) value
 (10, 1, 'Yes', 6, '2024-01-01', 86, 'Cooking Diaries', 'Diaries about various cooking topics'),
 (21, 2, 'No', 13, '2024-01-15', 72, 'Personal Diaries', 'General personal diaries that only the creator can view'),
@@ -202,56 +126,20 @@ insert into Records (Record_ID, Diary_ID, In_Gallery, Gallery_ID, Creation_Date,
 Select * from Records;
 
 -- Galleries
-create table if not exists Galleries (
-  Gallery_ID int not null,
-  Diary_ID int not null,
-  Owner_Type enum('User', 'Group') default 'User',
-  Owner_ID int not null,
-  Creation_Date date not null,
-  Gallery_Name varchar(25),
-  Gallery_Age int not null,
-  Record_Num int not null,
-  primary key (Gallery_ID, Diary_ID),
-  index (Diary_ID asc) visible,
-  constraint
-    foreign key (Diary_ID)
-    references Diaries (Diary_ID)
-    on delete cascade
-);
-
-
-insert into Galleries (Gallery_ID, Diary_ID, Owner_Type, Owner_ID, Creation_Date, Gallery_Name, Gallery_Age, Record_Num) values
-(1, 1, 'User', 1, '2024-01-01', 'Gallery 1', 2, 5),
-(2, 2, 'Group', 1, '2024-02-05', 'Gallery 2', 3, 8),
-(3, 3, 'User', 2, '2024-03-10', 'Gallery 3', 1, 4),
-(4, 4, 'Group', 2, '2024-04-15', 'Gallery 4', 5, 10),
-(5, 5, 'User', 3, '2024-05-20', 'Gallery 5', 4, 7),
-(6, 6, 'Group', 3, '2024-06-25', 'Gallery 6', 2, 6),
-(7, 7, 'User', 4, '2024-07-30', 'Gallery 7', 3, 9),
-(8, 8, 'Group', 4, '2024-08-05', 'Gallery 8', 6, 12),
-(9, 9, 'User', 5, '2024-09-10', 'Gallery 9', 2, 5),
-(10, 10, 'Group', 5, '2024-10-15', 'Gallery 10', 4, 8);
+insert into Galleries (Gallery_ID, Diary_ID, Creation_Date, Gallery_Name, Gallery_Age, Record_Num) values
+(1, 1, '2024-01-01', 'Gallery 1', 2, 5),
+(2, 2,'2024-02-05', 'Gallery 2', 3, 8),
+(3, 3,'2024-03-10', 'Gallery 3', 1, 4),
+(4, 4, '2024-04-15', 'Gallery 4', 5, 10),
+(5, 5, '2024-05-20', 'Gallery 5', 4, 7),
+(6, 6, '2024-06-25', 'Gallery 6', 2, 6),
+(7, 7, '2024-07-30', 'Gallery 7', 3, 9),
+(8, 8, '2024-08-05', 'Gallery 8', 6, 12),
+(9, 9, '2024-09-10', 'Gallery 9', 2, 5),
+(10, 10,'2024-10-15', 'Gallery 10', 4, 8);
 select * from Galleries;
 
 -- Planners
-create table if not exists Planners (
-  Planner_ID int not null,
-  Planner_Name varchar(25),
-  Owner_Type enum('User', 'Group') not null default 'User',
-  Owner_ID int not null,
-  Creation_Date date not null,
-  Planner_Age int not null,
-  Task_Num int not null,
-  Checklist_Num int not null,
-  primary key (Planner_ID, Owner_ID),
-  index (Owner_ID asc) visible,
-  constraint 
-    foreign key (Owner_ID)
-    references Creators (Creator_ID)
-    on delete cascade
-);
-
-
 insert into Planners (Planner_ID, Planner_Name, Owner_Type, Owner_ID, Creation_Date, Planner_Age, Task_Num, Checklist_Num) values
 (1, 'Planner 1', 'User', 1, '2024-01-01', 2, 5, 3),
 (2, 'Planner 2', 'Group', 1, '2024-02-05', 3, 8, 4),
@@ -266,24 +154,6 @@ insert into Planners (Planner_ID, Planner_Name, Owner_Type, Owner_ID, Creation_D
 select * from Planners;
 
 -- Tasks
-create table if not exists Tasks (
-  Task_ID  int not null,
-  Planner_ID int not null,
-  In_Checklist enum('Yes', 'No') default 'No',
-  Checklist_ID int,
-  Creation_Date date not null,
-  Task_Due_Date date,
-  Task_Name varchar(25) ,
-  Task_Description varchar(255),
-  primary key (Task_ID, Planner_ID),
-  index (Planner_ID asc) visible, 
-  constraint 
-    foreign key (Planner_ID)
-    references Planners (Planner_ID)
-    on delete cascade
-);
-
-
 insert into Tasks (Task_ID, Planner_ID, In_Checklist, Checklist_ID, Creation_Date, Task_Due_Date, Task_Name, Task_Description) values
 (1, 1, 'Yes', 1, '2024-01-01', '2024-01-15', 'Task 1', 'Description for Task 1'),
 (2, 2, 'No', 2, '2024-02-05', '2024-02-20', 'Task 2', 'Description for Task 2'),
@@ -298,30 +168,15 @@ insert into Tasks (Task_ID, Planner_ID, In_Checklist, Checklist_ID, Creation_Dat
 select * from Tasks;
 
 -- Checklists
-create table if not exists Checklists (
-  Checklist_ID int not null,
-  Planner_ID int not null,
-  Checklist_Name varchar(25),
-  Checklist_Age int not null,
-  Task_Num int not null,
-  primary key (Checklist_ID, Planner_ID),
-  index (Planner_ID asc) visible,
-  constraint
-    foreign key (Planner_ID)
-    references Planners (Planner_ID)
-    on delete cascade
-);
-
-
-insert into Checklists (Checklist_ID, Planner_ID, Checklist_Name, Checklist_Age, Task_Num) values
-(1, 1, 'Checklist 1', 2, 5),
-(2, 2, 'Checklist 2', 3, 8),
-(3, 3, 'Checklist 3', 1, 4),
-(4, 4, 'Checklist 4', 5, 10),
-(5, 5, 'Checklist 5', 4, 7),
-(6, 6, 'Checklist 6', 2, 6),
-(7, 7, 'Checklist 7', 3, 9),
-(8, 8, 'Checklist 8', 6, 12),
-(9, 9, 'Checklist 9', 2, 5),
-(10, 10, 'Checklist 10', 4, 8);
+insert into Checklists (Checklist_ID, Planner_ID, Checklist_Name, Creation_Date, Checklist_Age, Task_Num) values
+(1, 1, 'Checklist 1','2024-01-15', 2, 5),
+(2, 2, 'Checklist 2','2024-01-16', 3, 8),
+(3, 3, 'Checklist 3', '2024-01-17', 1, 4),
+(4, 4, 'Checklist 4', '2024-01-18', 5, 10),
+(5, 5, 'Checklist 5', '2024-01-19', 4, 7),
+(6, 6, 'Checklist 6', '2024-01-20', 2, 6),
+(7, 7, 'Checklist 7', '2024-01-21', 3, 9),
+(8, 8, 'Checklist 8', '2024-01-22', 6, 12),
+(9, 9, 'Checklist 9', '2024-01-23' ,2, 5),
+(10, 10, 'Checklist 10', '2024-01-24', 4, 8);
 select * from Checklists;
