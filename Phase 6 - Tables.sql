@@ -11,10 +11,10 @@ use diary_management;
 
 create table if not exists Admins (
 Admin_ID int primary key,
-Admin_name varchar(25) not null,
+Admin_Name varchar(25) not null,
 Creation_Date date not null,
-Account_age int not null,
-Archive_num int not null
+Account_Age int not null,
+Archive_Num int not null
 );
 
 create table if not exists Admin_Users (
@@ -114,7 +114,6 @@ constraint
 create table if not exists Galleries (
 Gallery_ID int not null,
 Diary_ID int not null,
-Owner_Type enum('User', 'Default') default 'User',
 Creation_Date date not null, 
 Gallery_Name varchar(25),
 Gallery_Age int not null, 
@@ -162,6 +161,7 @@ create table if not exists Checklists (
   Checklist_ID int not null,
   Planner_ID int not null,
   Checklist_Name varchar(25),
+  Creation_Date date not null,
   Checklist_Age int not null,
   Task_Num int not null,
   primary key (Checklist_ID, Planner_ID),
