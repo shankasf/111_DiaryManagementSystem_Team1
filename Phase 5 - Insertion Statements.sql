@@ -5,9 +5,8 @@ CMPT 308N Section 111 (Database Management)
 Phase 5: Creators, Diaries, _Groups, Galleries, Planners, Tasks, and Checklists
 */
 
-create database if not exists diary_management;
 use diary_management;
--- drop database diary_management;
+
 -- set foreign_key_checks = 0;
 -- set foreign_key_checks = 1;
 
