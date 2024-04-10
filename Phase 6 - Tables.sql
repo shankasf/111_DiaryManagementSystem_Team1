@@ -102,8 +102,10 @@ Record_ID int not null,
 Diary_ID int not null,
 In_Gallery enum('Yes','No') default 'No',
 Gallery_ID int,
+Creation_Date date not null,
 Record_Age int not null,
 Record_Name varchar(25),
+Record_Description varchar(255),
 primary key (Record_ID, Diary_ID),
 constraint 
   foreign key (Diary_ID)
