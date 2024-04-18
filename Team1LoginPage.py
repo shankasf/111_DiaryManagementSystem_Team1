@@ -48,6 +48,7 @@ def submit():
                 print(strikes)
             elif strikes == 3:
                 loginWindow.destroy();
+                quit()
         else:
             strikes = 0
             #Code to go to the main menu
@@ -122,7 +123,9 @@ def databaseSubmit():
                     strikes = strikes + 1
                     print(strikes)
             elif strikes == 3:
-                    loginWindow.destroy();
+                exitFunction()
+                    #loginWindow.destroy();
+                    #quit()
         
 def createAccountPage():
     usernameInput.delete(0, END)
