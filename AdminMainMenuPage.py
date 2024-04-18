@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from Team1LoginPageTesting import *
 
 import mysql.connector
 
@@ -7,10 +8,10 @@ class Database:
     def __init__(self, host, user, password, database):
         # Create connection to MySQL DB
         self.connection = mysql.connector.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database
+            host= "localhost",
+            user= "root",
+            password="C0mput3r$c13nc3",
+            database='diary_management'
         )
         self.cursor = self.connection.cursor()
 
@@ -117,3 +118,5 @@ if __name__ == "__main__":
     db = Database(host="localhost", user="root", password="root", database="diary_management")
     app = AdminMenu(database=db)
     app.mainloop()
+
+#AdminMenu.mainloop()
