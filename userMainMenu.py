@@ -15,9 +15,13 @@ userMainMenu.config(bg='light blue')
 # temp for testing until i can connect to login user
 username = "jakie"
 
+userMainMenu.grid_rowconfigure(0, weight=1)
+userMainMenu.grid_columnconfigure(0, weight=1)
+
 db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
 
 cursor = db.cursor()
+
 
 # Welcome
 LT = tk.Label(userMainMenu, text="Welcome!", font=('Times', 50))
@@ -41,14 +45,14 @@ LT2.grid(row=2, column=0)
 LT2.config(bg="light blue", fg="White")
 
 
-# user_id
-def get_userID():
-    user_id = cursor.execute("""Select User_ID from Users where Username = %s""", (username,))
-    userIdResult = cursor.fetchall()
-
-    LT1 = tk.Label(userMainMenu, text=userIdResult, font=('Times', 20))
-    # LT1.pack(side=tk.TOP, expand=False, fill=None)
-    LT1.config(bg="light blue", fg="White")
+# # user_id
+# def get_userID():
+#     user_id = cursor.execute("""Select User_ID from Users where Username = %s""", (username,))
+#     userIdResult = cursor.fetchall()
+#
+#     LT1 = tk.Label(userMainMenu, text=userIdResult, font=('Times', 20))
+#     # LT1.pack(side=tk.TOP, expand=False, fill=None)
+#     LT1.config(bg="light blue", fg="White")
 
 
 # Record function
@@ -88,7 +92,7 @@ def viewRecords():
 
 # record button
 viewRecordsBtn = Button(userMainMenu, text="View Records", command=viewRecords)
-viewRecordsBtn.grid(row=5, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+viewRecordsBtn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
 # create record function
@@ -112,7 +116,7 @@ def createRecords():
 
 # create record button
 createRecordsBtn = Button(userMainMenu, text="Create Records", command=createRecords)
-createRecordsBtn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+createRecordsBtn.grid(row=4, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
 # admin function
@@ -148,7 +152,7 @@ def viewAdmins():
 
 # admin button
 viewAdminsBtn = Button(userMainMenu, text="View Admins", command=viewAdmins)
-viewAdminsBtn.grid(row=4, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+viewAdminsBtn.grid(row=5, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
 # planner function
@@ -167,7 +171,7 @@ def viewPlanner():
 
 # planner button
 viewPlannerBtn = Button(userMainMenu, text="View Planner", command=viewPlanner)
-viewPlannerBtn.grid(row=7, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+viewPlannerBtn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
 # group function
@@ -207,7 +211,7 @@ def viewGroups():
 
 # view group button
 viewPlannerBtn = Button(userMainMenu, text="View Groups", command=viewGroups)
-viewPlannerBtn.grid(row=8, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+viewPlannerBtn.grid(row=7, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
 def createGroups():
@@ -229,12 +233,29 @@ def createGroups():
 
 # create group button
 createGroupsBtn = Button(userMainMenu, text="Create Groups", command=createGroups)
-createGroupsBtn.grid(row=9, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+createGroupsBtn.grid(row=8, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+# logout function
+def logout():
+    # connect ot the database
+    db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
+
+    # create cursor
+    cursor = db.cursor()
+
+    userMainMenu.destroy()
+    print('made it past userMainMenu.destroy()')
+    exec(open("loginPage.py").read())
+    print('opened loginPage.py')
+
 
 # logout button
-logoutButton = tk.Button(text="Logout", width=15, height=2, bg="blue", fg="black")
+logoutButton = Button(userMainMenu, text="Logout", command=logout)
+logoutButton.grid(row=9, column=0)
+
+# logoutButton = tk.Button(text="Logout", width=15, height=2, bg="blue", fg="black")
 # logoutButton.pack(side=tk.BOTTOM, expand=False, fill=None)
-logoutButton.grid(row=10, column=0)
+
 
 print(db.is_connected())
 userMainMenu.mainloop()
