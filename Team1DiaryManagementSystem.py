@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import *
+import tkinter as tk
 import mysql.connector
 import tkinter.messagebox
 from datetime import datetime
@@ -334,6 +335,27 @@ def userMainMenuFunction():
     #     # LT1.pack(side=tk.TOP, expand=False, fill=None)
     #     LT1.config(bg="light blue", fg="White")
 
+    def diary():
+        # connect ot the database
+        db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
+
+        # create cursor
+        cursor = db.cursor()
+
+        userMainMenu.destroy()
+        print('made it past userMainMenu.destroy()')
+        diaryFunction()
+        print('opened diary.py')
+
+        # Commit Changes
+        db.commit()
+        # Close Connection
+        db.close()
+
+
+    # diary button
+    diaryBtn = Button(userMainMenu, text="Open Diary", command=diary)
+    diaryBtn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
     # Record function
     def viewRecords():
@@ -372,7 +394,7 @@ def userMainMenuFunction():
 
     # record button
     viewRecordsBtn = Button(userMainMenu, text="View Records", command=viewRecords)
-    viewRecordsBtn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+    viewRecordsBtn.grid(row=4, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
     # create record function
@@ -396,7 +418,7 @@ def userMainMenuFunction():
 
     # create record button
     createRecordsBtn = Button(userMainMenu, text="Create Records", command=createRecords)
-    createRecordsBtn.grid(row=4, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+    createRecordsBtn.grid(row=5, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
     # admin function
@@ -432,7 +454,7 @@ def userMainMenuFunction():
 
     # admin button
     viewAdminsBtn = Button(userMainMenu, text="View Admins", command=viewAdmins)
-    viewAdminsBtn.grid(row=5, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+    viewAdminsBtn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
     # planner function
@@ -451,7 +473,7 @@ def userMainMenuFunction():
 
     # planner button
     viewPlannerBtn = Button(userMainMenu, text="View Planner", command=viewPlanner)
-    viewPlannerBtn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+    viewPlannerBtn.grid(row=7, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
     # group function
@@ -491,7 +513,7 @@ def userMainMenuFunction():
 
     # view group button
     viewPlannerBtn = Button(userMainMenu, text="View Groups", command=viewGroups)
-    viewPlannerBtn.grid(row=7, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+    viewPlannerBtn.grid(row=8, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
 
     def createGroups():
@@ -513,7 +535,7 @@ def userMainMenuFunction():
 
     # create group button
     createGroupsBtn = Button(userMainMenu, text="Create Groups", command=createGroups)
-    createGroupsBtn.grid(row=8, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+    createGroupsBtn.grid(row=9, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
     # logout function
     def logout():
@@ -531,7 +553,7 @@ def userMainMenuFunction():
 
     # logout button
     logoutButton = Button(userMainMenu, text="Logout", command=logout)
-    logoutButton.grid(row=9, column=0)
+    logoutButton.grid(row=10, column=0)
 
     # logoutButton = tk.Button(text="Logout", width=15, height=2, bg="blue", fg="black")
     # logoutButton.pack(side=tk.BOTTOM, expand=False, fill=None)
@@ -677,6 +699,13 @@ def groupMainMenuFunction():
     def logout():
         groupMainMenu.destroy()
         login()
+
+    def backToMainMenu():
+        groupMainMenu.destroy()
+        userMainMenuFunction()
+
+    backButton = tk.Button(groupMainMenu, text = 'Back', width = 10, padx = 10, bg = 'darkred', fg = 'white', command = backToMainMenu)
+    backButton.pack(side = TOP, anchor = NW)
 
     #Welcome
     LT = tk.Label(groupMainMenu, text="Group Main Page", font=('Times', 50))
@@ -956,4 +985,179 @@ def galleriesFunction():
     db.close()
 
 
+def diaryFunction():
+    diaryPage = tk.Tk()
+    diaryPage.title('Diary Page')
+    diaryPage.geometry('1500x700')
+    diaryPage.config(bg='light blue')
+
+    #db = mysql.connector.connect(
+        #host="localhost",
+        #user="root",
+        #password="Jackie2013",
+        #database="diary_management"
+    #)
+
+    #cursor = db.cursor()
+
+    diaryPage.grid_rowconfigure(0, weight=1)
+    diaryPage.grid_columnconfigure(0, weight=1)
+
+    # Welcome
+    intro = tk.Label(diaryPage, text="Welcome to your Diary!", font=('Helvetica', 45))
+    intro.rowconfigure(1, weight=1)
+    intro.columnconfigure(1, weight=1)
+    intro.grid(row=0, column=0)
+    intro.config(bg="light blue", fg="white")
+
+
+    # view records function
+    def viewRecords():
+        # connect ot the database
+        db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
+
+        # create cursor
+        cursor = db.cursor()
+
+        recordWindow = Toplevel(diaryPage)
+        recordWindow.title("Records")
+        recordWindow.geometry("200x200")
+
+        # view records
+        cursor.execute("SELECT * FROM Records")
+        _records = cursor.fetchall()
+        print(_records)
+
+        print_records = ' '
+
+        # loop through records
+        for record in _records:
+            print_records += str('Record Name: ' + record[6] + '\n' + 'Record Description: ' + record[7]) + '\n'
+
+        record_label = Label(recordWindow, text=print_records)
+        record_label.grid(row=1, column=0, columnspan=2)
+
+        # Commit Changes
+        db.commit()
+        # Close Connection
+        db.close()
+
+
+    # record button
+    viewRecordsBtn = Button(diaryPage, text="View Records", command=viewRecords)
+    viewRecordsBtn.grid(row=1, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+
+    # create records function
+    def createRecords():
+        # connect ot the database
+        db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
+
+        # create cursor
+        cursor = db.cursor()
+
+        diaryPage.destroy()
+        print('made it past diary.destroy()')
+        recordsFunction()
+        print('opened records.py')
+
+        # Commit Changes
+        db.commit()
+        # Close Connection
+        db.close()
+
+
+    # create record button
+    createRecordsBtn = Button(diaryPage, text="Create Records", command=createRecords)
+    createRecordsBtn.grid(row=2, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+
+    # view galleries function
+    def viewGalleries():
+        # connect ot the database
+        db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
+
+        # create cursor
+        cursor = db.cursor()
+
+        galleryWindow = Toplevel(diaryPage)
+        galleryWindow.title("Galleries")
+        galleryWindow.geometry("200x200")
+
+        # view records
+        cursor.execute("SELECT * FROM Galleries")
+        _galleries = cursor.fetchall()
+        print(_galleries)
+
+        print_records = ' '
+
+        # loop through records
+        for record in _galleries:
+            print_records += str('Record Name: ' + record[5] + '\n' + 'Record Description: ' + record[6]) + '\n'
+
+        record_label = Label(galleryWindow, text=print_records)
+        record_label.grid(row=1, column=0, columnspan=2)
+
+        # Commit Changes
+        db.commit()
+        # Close Connection
+        db.close()
+
+
+    # galleries button
+    viewGalleriesBtn = Button(diaryPage, text="View Galleries", command=viewGalleries)
+    viewGalleriesBtn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+    # create galleries function
+    def createGalleries():
+        # connect ot the database
+        db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
+
+        # create cursor
+        cursor = db.cursor()
+
+        diaryPage.destroy()
+        print('made it past diary.destroy()')
+        galleriesFunction()
+        print('opened galleries.py')
+
+        # Commit Changes
+        db.commit()
+        # Close Connection
+        db.close()
+
+
+    # galleries button
+    createGalleriesBtn = Button(diaryPage, text="Create Galleries", command=createGalleries)
+    createGalleriesBtn.grid(row=4, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+
+    # logout function
+
+    def logout():
+        # connect ot the database
+        db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
+
+        # create cursor
+        cursor = db.cursor()
+
+        diaryPage.destroy()
+        print('made it past diaryPpage.destroy()')
+        exec(open("loginPage.py").read())
+        print('opened loginPage.py')
+
+    def backToMainMenu():
+        diaryPage.destroy()
+        userMainMenuFunction()
+        
+    # logout button
+    logoutButton = Button(diaryPage, text="Logout", command=logout)
+    logoutButton.grid(row=5, column=0)
+
+    backButton = tk.Button(diaryPage, text = 'Back', width = 10, padx = 10, bg = 'darkred', fg = 'white', command = backToMainMenu)
+    backButton.grid(row=0, column=0, sticky = 'nw')
+
+    diaryPage.mainloop()
+
+    
 login()
