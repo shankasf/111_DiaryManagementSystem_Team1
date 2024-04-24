@@ -14,12 +14,12 @@ class Database:
         self.cursor = self.connection.cursor()
 
     def execute_query(self, query, values=None):
-        # execute query that doesn't return results (e.g., INSERT, UPDATE)
+        # execute query that doesn't return results
         self.cursor.execute(query, values)
         self.connection.commit()
 
     def fetch_query(self, query, values=None):
-        # execute query that returns results (e.g., SELECT)
+        # execute query that returns results
         self.cursor.execute(query, values)
         return self.cursor.fetchall()
 
@@ -75,8 +75,7 @@ class PlannerApp:
         # create a new checklist
         checklist_window = tk.Toplevel(self.master)
         checklist_window.title("Create Checklist")
-        checklist_window.geometry("1920x1080")  # Set window size
-
+        checklist_window.geometry("1920x1080")  # set window size
         checklist_window.configure(bg="light blue")
 
         label = tk.Label(checklist_window, text="Enter Checklist Name:")
@@ -89,8 +88,24 @@ class PlannerApp:
             # save the new checklist to the DB
             name = checklist_entry.get()
             if name:
-                self.checklists.append(name)
-                self.db_connector.execute_query("INSERT INTO Checklists (Checklist_Name) VALUES (%s)", (name,))
+                # fetch the maximum Checklist_ID from the Checklists table
+                max_checklist_id_query = "SELECT MAX(Checklist_ID) FROM Checklists"
+                max_checklist_id = self.db_connector.fetch_query(max_checklist_id_query)[0][0] or 0
+                checklist_id = max_checklist_id + 1
+                
+                # fetch the maximum Planner_ID from the Planners table
+                max_planner_id_query = "SELECT MAX(Planner_ID) FROM Planners"
+                max_planner_id = self.db_connector.fetch_query(max_planner_id_query)[0][0] or 0
+                planner_id = max_planner_id + 1
+                
+                # fetch the maximum Task_Num for the given Planner_ID
+                max_task_num_query = "SELECT MAX(Task_Num) FROM Planners WHERE Planner_ID = %s"
+                max_task_num = self.db_connector.fetch_query(max_task_num_query, (planner_id,))[0][0] or 0
+                task_num = max_task_num + 1
+
+                # insert checklist into the Checklists table
+                self.db_connector.execute_query("INSERT INTO Checklists (Checklist_ID, Planner_ID, Checklist_Name, Creation_Date, Checklist_Age, Task_Num) VALUES (%s, %s, %s, NOW(), 0, %s)", (checklist_id, planner_id, name, task_num))
+                
                 messagebox.showinfo("Success", "Checklist created successfully")
                 checklist_window.destroy()
             else:
