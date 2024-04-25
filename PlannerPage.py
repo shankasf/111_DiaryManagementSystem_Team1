@@ -35,7 +35,7 @@ class PlannerPage:
         self.checklist_name_entry = tk.Entry(create_checklist_window)
         self.checklist_name_entry.pack()
 
-        planner_id = 1  # Example Planner_ID
+        planner_id = 1
 
         save_button = tk.Button(create_checklist_window, text="Save", command=lambda: self.save_checklist(planner_id, create_checklist_window))
         save_button.pack()
@@ -76,7 +76,7 @@ class PlannerPage:
         back_button.pack()
 
     def edit_checklist(self):
-        # Fetch the list of checklists from the database
+        # fetch the list of checklists from the database
         cursor = self.db_connection.cursor()
         cursor.execute("SELECT Checklist_ID, Checklist_Name FROM Checklists")
         checklists = cursor.fetchall()
@@ -91,7 +91,7 @@ class PlannerPage:
         checklist_label.pack()
 
         self.selected_checklist = tk.StringVar()
-        self.selected_checklist.set("")  # Set default value
+        self.selected_checklist.set("")  # set default value
 
         checklist_option_menu = tk.OptionMenu(edit_checklist_window, self.selected_checklist, *[""] + [checklist[1] for checklist in checklists])
         checklist_option_menu.pack()
@@ -155,7 +155,7 @@ class PlannerPage:
             messagebox.showerror("Error", "Please enter a new checklist name.")
             return
 
-        # Update the checklist name in the database
+        # update checklist name in the database
         cursor = self.db_connection.cursor()
         cursor.execute("UPDATE Checklists SET Checklist_Name = %s WHERE Checklist_ID = %s", (new_name, checklist_id))
         self.db_connection.commit()
@@ -187,7 +187,7 @@ class PlannerPage:
             messagebox.showerror("Error", "Please enter a task.")
             return
 
-        # Insert the new task into the database
+        # insert the new task into the database
         cursor = self.db_connection.cursor()
         cursor.execute("INSERT INTO Tasks (Task_Name, Checklist_ID) VALUES (%s, %s)", (task_name, checklist_id))
         self.db_connection.commit()
@@ -202,25 +202,20 @@ class PlannerPage:
             messagebox.showerror("Error", "Please enter a checklist name.")
             return
 
-        # Insert the new checklist into the database
+        # insert the new checklist into the database
         cursor = self.db_connection.cursor()
         cursor.execute("INSERT INTO Checklists (Checklist_Name, Creation_Date, Checklist_Age, Task_Num, Planner_ID) VALUES (%s, CURDATE(), 1, 0, %s)", (checklist_name, planner_id))
         self.db_connection.commit()
         cursor.close()
-        create_checklist_window.destroy()  # Close the create checklist window
-        self.edit_checklist()  # Open the edit checklist window
+        create_checklist_window.destroy()  # close the create checklist window
+        self.edit_checklist()  # open the edit checklist window
 
     def return_to_main_menu(self):
-        self.master.destroy()  # Close the Planner Page window
+        self.master.destroy()  # close the Planner Page window
 
 def main():
-    # Establish connection to the MySQL database
-    db_connection = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="root",
-        database="diary_management"
-    )
+    # establish connection to the MySQL database
+    db_connection = mysql.connector.connect(host="localhost", user="root", password="root", database="diary_management")
 
     root = tk.Tk()
     app = PlannerPage(root, db_connection)
