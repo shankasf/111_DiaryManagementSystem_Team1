@@ -6,6 +6,7 @@ class PlannerPage:
     def __init__(self, master, db_connection):
         self.master = master
         self.db_connection = db_connection
+        self.last_task_id = self.get_last_task_id()  # initialize the last task ID
 
         self.master.title("Planner Page")
         self.master.geometry("1920x1080")
@@ -20,14 +21,28 @@ class PlannerPage:
         self.edit_checklist_button = tk.Button(master, text="Edit Checklist", command=self.edit_checklist)
         self.edit_checklist_button.pack()
 
+        self.view_checklists_button = tk.Button(master, text="View Checklists", command=self.view_checklists)
+        self.view_checklists_button.pack()
+
         self.main_menu_button = tk.Button(master, text="Main Menu", command=self.return_to_main_menu)
         self.main_menu_button.pack()
+
+    def get_last_task_id(self):
+        cursor = self.db_connection.cursor()
+        cursor.execute("SELECT MAX(Task_ID) FROM Tasks")
+        last_task_id = cursor.fetchone()[0]
+        cursor.close()
+        return last_task_id if last_task_id else 0
 
     def create_checklist(self):
         create_checklist_window = tk.Toplevel(self.master)
         create_checklist_window.title("Create Checklist")
         create_checklist_window.geometry("1920x1080")
         create_checklist_window.configure(bg="light blue")
+
+        # Title label for the Create Checklist page
+        title_label = tk.Label(create_checklist_window, text="Checklist Creation", font=("Arial", 20), bg="light blue")
+        title_label.pack(pady=20)
 
         checklist_name_label = tk.Label(create_checklist_window, text="Enter Checklist Name:", bg="light blue")
         checklist_name_label.pack()
@@ -87,6 +102,10 @@ class PlannerPage:
         edit_checklist_window.geometry("1920x1080")
         edit_checklist_window.configure(bg="light blue")
 
+        # Title label for the Edit Checklist page
+        title_label = tk.Label(edit_checklist_window, text="Checklist Editor", font=("Arial", 20), bg="light blue")
+        title_label.pack(pady=20)
+
         checklist_label = tk.Label(edit_checklist_window, text="Select Checklist:", bg="light blue")
         checklist_label.pack()
 
@@ -122,6 +141,10 @@ class PlannerPage:
         edit_checklist_window.geometry("1920x1080")
         edit_checklist_window.configure(bg="light blue")
 
+        # Title label for the Edit Checklist options
+        title_label = tk.Label(edit_checklist_window, text="Click on one of these two options or go back", font=("Arial", 16), bg="light blue")
+        title_label.pack(pady=20)
+
         edit_name_button = tk.Button(edit_checklist_window, text="Edit Checklist Name", command=lambda: self.edit_checklist_name(checklist_id, checklist_name))
         edit_name_button.pack()
 
@@ -149,13 +172,74 @@ class PlannerPage:
         back_button = tk.Button(edit_name_window, text="Back", command=edit_name_window.destroy)
         back_button.pack()
 
+    def view_checklists(self):
+        view_checklists_window = tk.Toplevel(self.master)
+        view_checklists_window.title("View Checklists")
+        view_checklists_window.geometry("1920x1080")
+        view_checklists_window.configure(bg="light blue")
+
+        # Title label for the View Checklists page
+        title_label = tk.Label(view_checklists_window, text="Checklist Viewer", font=("Arial", 20), bg="light blue")
+        title_label.pack(pady=20)
+
+        # Fetch all checklists
+        cursor = self.db_connection.cursor()
+        cursor.execute("SELECT Checklist_ID, Checklist_Name FROM Checklists")
+        checklists = cursor.fetchall()
+        cursor.close()
+
+        self.selected_checklist_id = tk.StringVar(view_checklists_window)
+        self.selected_checklist_id.set("")  # set default value
+
+        checklist_option_menu = tk.OptionMenu(view_checklists_window, self.selected_checklist_id, *[""] + [str(checklist[0]) + " - " + checklist[1] for checklist in checklists])
+        checklist_option_menu.pack()
+
+        view_selected_checklist_button = tk.Button(view_checklists_window, text="View Selected Checklist", command=self.view_selected_checklist)
+        view_selected_checklist_button.pack()
+
+        back_button = tk.Button(view_checklists_window, text="Back", command=view_checklists_window.destroy)
+        back_button.pack()
+
+    def view_selected_checklist(self):
+        selected_checklist_id = int(self.selected_checklist_id.get().split(" - ")[0])
+
+        # Fetch checklist name
+        cursor = self.db_connection.cursor()
+        cursor.execute("SELECT Checklist_Name FROM Checklists WHERE Checklist_ID = %s", (selected_checklist_id,))
+        checklist_name = cursor.fetchone()[0]
+        
+        # Fetch tasks for the selected checklist
+        cursor.execute("SELECT Task_Name FROM Tasks WHERE Checklist_ID = %s", (selected_checklist_id,))
+        tasks = cursor.fetchall()
+        cursor.close()
+
+        # Display checklist and tasks
+        view_selected_checklist_window = tk.Toplevel(self.master)
+        view_selected_checklist_window.title("View Selected Checklist")
+        view_selected_checklist_window.geometry("1920x1080")
+        view_selected_checklist_window.configure(bg="light blue")
+
+        checklist_label = tk.Label(view_selected_checklist_window, text="Checklist: " + checklist_name, bg="light blue")
+        checklist_label.pack()
+
+        tasks_label = tk.Label(view_selected_checklist_window, text="Tasks:", bg="light blue")
+        tasks_label.pack()
+
+        for task in tasks:
+            task_name = task[0]
+            task_label = tk.Label(view_selected_checklist_window, text=task_name, bg="light blue")
+            task_label.pack()
+
+        back_button = tk.Button(view_selected_checklist_window, text="Back", command=view_selected_checklist_window.destroy)
+        back_button.pack()
+
     def save_checklist_name(self, checklist_id, old_name, edit_name_window):
         new_name = self.new_name_entry.get()
         if not new_name:
             messagebox.showerror("Error", "Please enter a new checklist name.")
             return
 
-        # update checklist name in the database
+        # update checklist name in the DB
         cursor = self.db_connection.cursor()
         cursor.execute("UPDATE Checklists SET Checklist_Name = %s WHERE Checklist_ID = %s", (new_name, checklist_id))
         self.db_connection.commit()
@@ -187,9 +271,12 @@ class PlannerPage:
             messagebox.showerror("Error", "Please enter a task.")
             return
 
-        # insert the new task into the database
+        # increment the task ID
+        self.last_task_id += 1
+
+        # Insert the new task into the DB with the current date
         cursor = self.db_connection.cursor()
-        cursor.execute("INSERT INTO Tasks (Task_Name, Checklist_ID) VALUES (%s, %s)", (task_name, checklist_id))
+        cursor.execute("INSERT INTO Tasks (Task_ID, Task_Name, Checklist_ID, Planner_ID, Creation_Date) VALUES (%s, %s, %s, %s, CURDATE())", (self.last_task_id, task_name, checklist_id, planner_id))
         self.db_connection.commit()
         cursor.close()
 
@@ -202,7 +289,7 @@ class PlannerPage:
             messagebox.showerror("Error", "Please enter a checklist name.")
             return
 
-        # insert the new checklist into the database
+        # insert the new checklist into the DB
         cursor = self.db_connection.cursor()
         cursor.execute("INSERT INTO Checklists (Checklist_Name, Creation_Date, Checklist_Age, Task_Num, Planner_ID) VALUES (%s, CURDATE(), 1, 0, %s)", (checklist_name, planner_id))
         self.db_connection.commit()
@@ -214,7 +301,7 @@ class PlannerPage:
         self.master.destroy()  # close the Planner Page window
 
 def main():
-    # establish connection to the MySQL database
+    # establish connection to the MySQL DB
     db_connection = mysql.connector.connect(host="localhost", user="root", password="root", database="diary_management")
 
     root = tk.Tk()
