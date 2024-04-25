@@ -187,10 +187,12 @@ def login():
                 found = cursor.fetchall()
                 print(found)
 
+                db.commit()
+                db.close()
+
                 #Go to user main page here
                 loginWindow.destroy();
                 userMainMenuFunction()
-                #exec(open("Team1UserMainPage.py").read())
 
     def backToLogin():
         usernameInput.delete(0, END)
@@ -283,37 +285,21 @@ def login():
 
 
 def userMainMenuFunction():
-
-    #from loginPage import *
-    #from records import *
-    #from planner import *
-
     userMainMenu = tk.Tk()
     userMainMenu.title('User Main Menu')
     userMainMenu.geometry('1500x700')
     userMainMenu.config(bg='light blue')
 
-    # temp for testing until i can connect to login user
-    #username = "jakie"
-
     userMainMenu.grid_rowconfigure(0, weight=1)
     userMainMenu.grid_columnconfigure(0, weight=1)
 
-    #db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
-
-    #cursor = db.cursor()
-
-
     # Welcome
-    LT = tk.Label(userMainMenu, text="Welcome!", font=('Times', 50))
+    LT = tk.Label(userMainMenu, text="Welcome " + username + "!", font=('Times', 50))
     LT.grid(row=0, column=0)
-    # LT.pack(side=TOP, expand=True, fill=None)
-    # LT.pack(expand=True)
     LT.config(bg="light blue", fg="white")
 
     # Menu Intro
     LT0 = tk.Label(userMainMenu, text="Main Menu", font=('Times', 25))
-    # LT0.pack(side=TOP, expand=True)
     LT0.grid(row=1, column=0)
     LT0.config(bg="light blue", fg="white")
 
@@ -321,22 +307,11 @@ def userMainMenuFunction():
 
     # username
     LT2 = tk.Label(userMainMenu, text=username, font=('Times', 20))
-    # LT2.pack(side=tk.TOP, expand=False, fill=None)
     LT2.grid(row=2, column=0)
     LT2.config(bg="light blue", fg="White")
 
-
-    # # user_id
-    # def get_userID():
-    #     user_id = cursor.execute("""Select User_ID from Users where Username = %s""", (username,))
-    #     userIdResult = cursor.fetchall()
-    #
-    #     LT1 = tk.Label(userMainMenu, text=userIdResult, font=('Times', 20))
-    #     # LT1.pack(side=tk.TOP, expand=False, fill=None)
-    #     LT1.config(bg="light blue", fg="White")
-
     def diary():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -359,7 +334,7 @@ def userMainMenuFunction():
 
     # Record function
     def viewRecords():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -399,7 +374,7 @@ def userMainMenuFunction():
 
     # create record function
     def createRecords():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -423,7 +398,7 @@ def userMainMenuFunction():
 
     # admin function
     def viewAdmins():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -459,7 +434,7 @@ def userMainMenuFunction():
 
     # planner function
     def viewPlanner():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -479,7 +454,7 @@ def userMainMenuFunction():
     # group function
 
     def viewGroups():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -499,7 +474,6 @@ def userMainMenuFunction():
         # loop through records
         for group in _groups:
             print_groups += group[0]
-            # print_groups += str('Group Name: ') + '\n'
         groupID_label = Label(groupsWindow, text='Group IDS: ')
         groupID_label.grid(row=7, column=0, columnspan=2)
         group_label = Label(groupsWindow, text=print_groups)
@@ -517,7 +491,7 @@ def userMainMenuFunction():
 
 
     def createGroups():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -539,25 +513,14 @@ def userMainMenuFunction():
 
     # logout function
     def logout():
-        # connect ot the database
-        #db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
-
-        # create cursor
-        #cursor = db.cursor()
-
         userMainMenu.destroy()
         login()
         print('made it past userMainMenu.destroy()')
         print('opened loginPage.py')
 
-
     # logout button
     logoutButton = Button(userMainMenu, text="Logout", command=logout)
     logoutButton.grid(row=10, column=0)
-
-    # logoutButton = tk.Button(text="Logout", width=15, height=2, bg="blue", fg="black")
-    # logoutButton.pack(side=tk.BOTTOM, expand=False, fill=None)
-
 
     print(db.is_connected())
     userMainMenu.mainloop()
@@ -565,15 +528,6 @@ def userMainMenuFunction():
 
 def adminMenuFunction():
     class Database:
-        #def __init__(self, host, user, password, database):
-            # Create connection to MySQL DB
-            #self.connection = mysql.connector.connect(
-                #host= "localhost",
-                #user= "root",
-                #password="C0mput3r$c13nc3",
-                #database='diary_management'
-            #)
-            #self.cursor = self.connection.cursor()
 
         def fetch_data(self, query):
             # Executes select query and fetches the data from DB
@@ -676,7 +630,6 @@ def adminMenuFunction():
 
     if __name__ == "__main__":
         # Connect to MySQL DB and put your own info
-        #db = Database(host="localhost", user="root", password="root", database="diary_management")
         app = AdminMenu(database=db)
         app.mainloop()
 
@@ -686,15 +639,6 @@ def groupMainMenuFunction():
     groupMainMenu.title('Group Main Menu')
     groupMainMenu.geometry('1500x700')
     groupMainMenu.config(bg='light blue')
-
-    #db = mysql.connector.connect(
-        #host="localhost",
-        #user="root",
-        #password="Jackie2013",
-        #database="diary_management"
-    #)
-
-    #cursor = db.cursor()
 
     def logout():
         groupMainMenu.destroy()
@@ -709,7 +653,6 @@ def groupMainMenuFunction():
 
     #Welcome
     LT = tk.Label(groupMainMenu, text="Group Main Page", font=('Times', 50))
-    # LT.pack(side=TOP, expand=True, fill=None)
     LT.pack(expand=True)
     LT.config(bg="light blue", fg="white")
 
@@ -776,31 +719,19 @@ def recordsFunction():
     createrecordPage.grid_rowconfigure(0, weight=1)
     createrecordPage.grid_columnconfigure(0, weight=1)
 
-    #db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
-
-    #cursor = db.cursor()
-
-
     # create function
 
     def create():
-        #db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
-
-        #cursor = db.cursor()
-
         record_ID1 = recordID.get()
         record_name1 = recordName.get()
         diary_ID1 = diaryID.get()
         in_gallery1 = inGallery.get()
-        creation_date1 = creationDate.get()
         record_age1 = recordAge.get()
         record_description1 = recordDescription.get()
         gallery_ID1 = galleryID.get()
 
-        cursor.execute("""insert into records(record_id, diary_id, in_gallery, gallery_id, creation_date, record_age, record_name, record_decription)values"
-                   "(%s, %s, %s, %s, %s, %s, %s, %s)""",
-                   (record_ID1, diary_ID1, in_gallery1, gallery_ID1, date, record_age1, record_name1,
-                    record_description1))
+        cursor.execute("""insert into records(record_id, diary_id, in_gallery, gallery_id, creation_date, record_age, record_name, record_description)value (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                   (record_ID1, diary_ID1, in_gallery1, gallery_ID1, date, record_age1, record_name1, record_description1))
 
         db.commit()
         db.close()
@@ -811,7 +742,6 @@ def recordsFunction():
         diaryID.delete(0, END)
         inGallery.delete(0, END)
         galleryID.delete(0, END)
-        creationDate.delete(0, END)
         recordAge.delete(0, END)
         recordDescription.delete(0, END)
 
@@ -821,8 +751,6 @@ def recordsFunction():
 
     # Intro
     intro = tk.Label(createrecordPage, text="Create Record", font=('Helvetica', 40))
-    # intro.rowconfigure(1, weight=1)
-    # intro.columnconfigure(1, weight=1)
     intro.grid(row=0, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
     intro.config(bg="light blue", fg="white")
 
@@ -838,10 +766,7 @@ def recordsFunction():
 
     recordName = Entry(createrecordPage, width=15)
     recordName.grid(row=8, column=0, padx=20)
-
-    #creationDate = Entry(createrecordPage, width=15)
-    #creationDate.grid(row=10, column=0, padx=20)
-
+    
     recordAge = Entry(createrecordPage, width=15)
     recordAge.grid(row=12, column=0, padx=20)
 
@@ -865,13 +790,11 @@ def recordsFunction():
     recordNameLabel.grid(row=7, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
 
     date = datetime.today().strftime('%Y-%m-%d')
-    #creationDateLabel = Label(createrecordPage, text="Creation Date:")
-    #creationDateLabel.grid(row=9, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
 
     recordAgeLabel = Label(createrecordPage, text="Record Age:")
     recordAgeLabel.grid(row=11, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
 
-    inGalleryLabel = Label(createrecordPage, text="In Gallery:")
+    inGalleryLabel = Label(createrecordPage, text=" (Yes or No):")
     inGalleryLabel.grid(row=13, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
 
     recordDescriptionLabel = Label(createrecordPage, text="Record Description:")
@@ -899,22 +822,13 @@ def galleriesFunction():
     creategalleriePage.grid_rowconfigure(0, weight=1)
     creategalleriePage.grid_columnconfigure(0, weight=1)
 
-    #db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
-
-    #cursor = db.cursor()
-
-
     # create function
 
     def create():
-        #db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
-
-        #cursor = db.cursor()
-
+        date = datetime.today().strftime('%Y-%m-%d')
 
         galleryId2 = galleryID.get()
         diaryID2 = diaryID.get()
-        creationDate2 = creationDate.get()
         galleryName2 = galleryName.get()
         galleryAge2 = galleryAge.get()
         galleryNum2 = galleryNum.get()
@@ -929,8 +843,6 @@ def galleriesFunction():
 
     # Intro
     intro = tk.Label(creategalleriePage, text="Create Gallery", font=('Helvetica', 40))
-    # intro.rowconfigure(1, weight=1)
-    # intro.columnconfigure(1, weight=1)
     intro.grid(row=0, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
     intro.config(bg="light blue", fg="white")
 
@@ -940,9 +852,6 @@ def galleriesFunction():
 
     diaryID = Entry(creategalleriePage, width=10)
     diaryID.grid(row=4, column=0, padx=20)
-
-    creationDate = Entry(creategalleriePage, width=10)
-    creationDate.grid(row=6, column=0, padx=20)
 
     galleryName = Entry(creategalleriePage, width=15)
     galleryName.grid(row=8, column=0, padx=20)
@@ -959,9 +868,6 @@ def galleriesFunction():
 
     diaryIDLabel = Label(creategalleriePage, text="Diary ID:")
     diaryIDLabel.grid(row=3, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
-
-    creationDateLabel = Label(creategalleriePage, text="Creation Date:")
-    creationDateLabel.grid(row=5, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
 
     galleryNameLabel = Label(creategalleriePage, text="Gallery Name:")
     galleryNameLabel.grid(row=7, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
@@ -990,15 +896,6 @@ def diaryFunction():
     diaryPage.title('Diary Page')
     diaryPage.geometry('1500x700')
     diaryPage.config(bg='light blue')
-
-    #db = mysql.connector.connect(
-        #host="localhost",
-        #user="root",
-        #password="Jackie2013",
-        #database="diary_management"
-    #)
-
-    #cursor = db.cursor()
 
     diaryPage.grid_rowconfigure(0, weight=1)
     diaryPage.grid_columnconfigure(0, weight=1)
@@ -1074,7 +971,7 @@ def diaryFunction():
 
     # view galleries function
     def viewGalleries():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -1093,7 +990,7 @@ def diaryFunction():
 
         # loop through records
         for record in _galleries:
-            print_records += str('Record Name: ' + record[5] + '\n' + 'Record Description: ' + record[6]) + '\n'
+            print_records += str('Record Name: ' + record[3] + '\n' + 'Record Description: ' + record[6]) + '\n'
 
         record_label = Label(galleryWindow, text=print_records)
         record_label.grid(row=1, column=0, columnspan=2)
@@ -1110,7 +1007,7 @@ def diaryFunction():
 
     # create galleries function
     def createGalleries():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
@@ -1135,7 +1032,7 @@ def diaryFunction():
     # logout function
 
     def logout():
-        # connect ot the database
+        # connect to the database
         db = mysql.connector.connect(host="localhost", user="root", password=databasePassword, database=databaseUsername)
 
         # create cursor
