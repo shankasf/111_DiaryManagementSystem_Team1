@@ -40,7 +40,7 @@ class PlannerPage:
         create_checklist_window.geometry("1920x1080")
         create_checklist_window.configure(bg="light blue")
 
-        # Title label for the Create Checklist page
+        # title label for the Create Checklist page
         title_label = tk.Label(create_checklist_window, text="Checklist Creation", font=("Arial", 20), bg="light blue")
         title_label.pack(pady=20)
 
@@ -70,7 +70,7 @@ class PlannerPage:
         self.task_entry = tk.Entry(add_task_window)
         self.task_entry.pack()
 
-        # Fetch existing tasks for the checklist
+        # fetch existing tasks for the checklist
         cursor = self.db_connection.cursor()
         cursor.execute("SELECT Task_Name FROM Tasks WHERE Checklist_ID = %s", (checklist_id,))
         existing_tasks = cursor.fetchall()
@@ -102,7 +102,7 @@ class PlannerPage:
         edit_checklist_window.geometry("1920x1080")
         edit_checklist_window.configure(bg="light blue")
 
-        # Title label for the Edit Checklist page
+        # title label for the Edit Checklist page
         title_label = tk.Label(edit_checklist_window, text="Checklist Editor", font=("Arial", 20), bg="light blue")
         title_label.pack(pady=20)
 
@@ -274,7 +274,7 @@ class PlannerPage:
         # increment the task ID
         self.last_task_id += 1
 
-        # Insert the new task into the DB with the current date
+        # insert the new task into the DB with the current date
         cursor = self.db_connection.cursor()
         cursor.execute("INSERT INTO Tasks (Task_ID, Task_Name, Checklist_ID, Planner_ID, Creation_Date) VALUES (%s, %s, %s, %s, CURDATE())", (self.last_task_id, task_name, checklist_id, planner_id))
         self.db_connection.commit()
