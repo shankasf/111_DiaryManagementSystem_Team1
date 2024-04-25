@@ -16,16 +16,16 @@ class PlannerPage:
         self.title_label.pack(pady=20)
 
         self.create_checklist_button = tk.Button(master, text="Create Checklist", command=self.create_checklist)
-        self.create_checklist_button.pack()
+        self.create_checklist_button.pack(pady=5)
 
         self.edit_checklist_button = tk.Button(master, text="Edit Checklist", command=self.edit_checklist)
-        self.edit_checklist_button.pack()
+        self.edit_checklist_button.pack(pady=5)
 
         self.view_checklists_button = tk.Button(master, text="View Checklists", command=self.view_checklists)
-        self.view_checklists_button.pack()
+        self.view_checklists_button.pack(pady=5)
 
         self.main_menu_button = tk.Button(master, text="Main Menu", command=self.return_to_main_menu)
-        self.main_menu_button.pack()
+        self.main_menu_button.pack(pady=5)
 
     def get_last_task_id(self):
         cursor = self.db_connection.cursor()
@@ -53,10 +53,10 @@ class PlannerPage:
         planner_id = 1
 
         save_button = tk.Button(create_checklist_window, text="Save", command=lambda: self.save_checklist(planner_id, create_checklist_window))
-        save_button.pack()
+        save_button.pack(pady=5)
 
         back_button = tk.Button(create_checklist_window, text="Back", command=create_checklist_window.destroy)
-        back_button.pack()
+        back_button.pack(pady=5)
 
     def add_task(self, planner_id, checklist_id):
         add_task_window = tk.Toplevel(self.master)
@@ -85,10 +85,10 @@ class PlannerPage:
             existing_task_label.pack()
 
         save_task_button = tk.Button(add_task_window, text="Save Task", command=lambda: self.save_task(planner_id, checklist_id, add_task_window))
-        save_task_button.pack()
+        save_task_button.pack(pady=5)
 
         back_button = tk.Button(add_task_window, text="Back", command=add_task_window.destroy)
-        back_button.pack()
+        back_button.pack(pady=5)
 
     def edit_checklist(self):
         # fetch the list of checklists from the database
@@ -116,13 +116,13 @@ class PlannerPage:
         checklist_option_menu.pack()
 
         edit_checklist_button = tk.Button(edit_checklist_window, text="Edit Checklist", command=self.open_edit_checklist_window)
-        edit_checklist_button.pack()
+        edit_checklist_button.pack(pady=5)
 
         delete_checklist_button = tk.Button(edit_checklist_window, text="Delete Checklist", command=self.delete_checklist)
-        delete_checklist_button.pack()
+        delete_checklist_button.pack(pady=5)
 
         back_button = tk.Button(edit_checklist_window, text="Back", command=edit_checklist_window.destroy)
-        back_button.pack()
+        back_button.pack(pady=5)
 
     def open_edit_checklist_window(self):
         checklist_name = self.selected_checklist.get()
@@ -146,13 +146,13 @@ class PlannerPage:
         title_label.pack(pady=20)
 
         edit_name_button = tk.Button(edit_checklist_window, text="Edit Checklist Name", command=lambda: self.edit_checklist_name(checklist_id, checklist_name))
-        edit_name_button.pack()
+        edit_name_button.pack(pady=5)
 
         add_task_button = tk.Button(edit_checklist_window, text="Add Task", command=lambda: self.add_task(1, checklist_id))  # Hardcoded Planner_ID for now
-        add_task_button.pack()
+        add_task_button.pack(pady=5)
 
         back_button = tk.Button(edit_checklist_window, text="Back", command=edit_checklist_window.destroy)
-        back_button.pack()
+        back_button.pack(pady=5)
 
     def edit_checklist_name(self, checklist_id, old_name):
         edit_name_window = tk.Toplevel(self.master)
@@ -167,10 +167,10 @@ class PlannerPage:
         self.new_name_entry.pack()
 
         save_button = tk.Button(edit_name_window, text="Save", command=lambda: self.save_checklist_name(checklist_id, old_name, edit_name_window))
-        save_button.pack()
+        save_button.pack(pady=5)
 
         back_button = tk.Button(edit_name_window, text="Back", command=edit_name_window.destroy)
-        back_button.pack()
+        back_button.pack(pady=5)
 
     def view_checklists(self):
         view_checklists_window = tk.Toplevel(self.master)
@@ -195,10 +195,10 @@ class PlannerPage:
         checklist_option_menu.pack()
 
         view_selected_checklist_button = tk.Button(view_checklists_window, text="View Selected Checklist", command=self.view_selected_checklist)
-        view_selected_checklist_button.pack()
+        view_selected_checklist_button.pack(pady=5)
 
         back_button = tk.Button(view_checklists_window, text="Back", command=view_checklists_window.destroy)
-        back_button.pack()
+        back_button.pack(pady=5)
 
     def view_selected_checklist(self):
         selected_checklist_id = int(self.selected_checklist_id.get().split(" - ")[0])
@@ -231,7 +231,7 @@ class PlannerPage:
             task_label.pack()
 
         back_button = tk.Button(view_selected_checklist_window, text="Back", command=view_selected_checklist_window.destroy)
-        back_button.pack()
+        back_button.pack(pady=5)
 
     def save_checklist_name(self, checklist_id, old_name, edit_name_window):
         new_name = self.new_name_entry.get()
