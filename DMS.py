@@ -6,12 +6,38 @@ import tkinter.messagebox
 from tkinter import messagebox
 from datetime import datetime
 
+
+# Global Variables
+global strikes
 strikes = 0
 
 
+global databaseUsername
+global databasePassword
+
+global db   
+global cursor
+
+
+global Creator_ID
+global Diary_ID
+global Planner_ID
+
+global username
+
+"""""
+Corrections
+
+Group, Diary & Planner related queries are user specific
+- Utilize global variables of Creator, Diary, & Planner ID to fix
+
+Provide legitimate manner for admin to log in
+
+"""""
+
 def login():
     # Window Setup
-    global loginWindow
+    global loginWindow, strikes
     loginWindow = tk.Tk()
     loginWindow.title('Login')
     loginWindow.geometry('800x550')
@@ -21,11 +47,10 @@ def login():
     # The user gets three tries to enter the password. However, once they reach three strikes, the window will close
 
     def submit():
+        global cursor, Creator_ID, username, strikes
         # Python won't let you use a variable from outside the function unless you use this 'global' declaration in the function
-        global strikes
         # You can't measure an entry's length by itself, but you can take it and apply it to another variable
         # Then you can measure, use, apply, etc the variable
-        global username
         username = usernameInput.get()
         password = passwordInput.get()
         if len(username) == 0 or len(password) == 0:
@@ -67,6 +92,8 @@ def login():
                 found = cursor.fetchall()
                 if len(found) == 0:
                     userMainMenuFunction()
+                    cursor.execute("""SELECT User_ID FROM Users WHERE username=%s""",(username))
+                    Creator_ID = cursor.fetchall()
                 elif len(found) == 1:
                     # AdminMenu.mainloop()
                     adminMenuFunction()
@@ -74,19 +101,16 @@ def login():
                     print('There has been an unexpected error. Please try again.')
 
     def databaseSubmit():
-        global databaseUsername
-        global databasePassword
+        global db, cursor, databaseUsername, databasePassword, strikes
         databaseUsername = usernameInput.get()
         databasePassword = passwordInput.get()
-
-        global strikes
 
         if len(databaseUsername) == 0 or len(databasePassword) == 0:
             blankSpace.config(bg='skyblue', fg='black')
             warningTitle.config(bg='#F0F0F0', fg='#F0F0F0')
             warning.config(bg='#F0F0F0', fg='#F0F0F0')
         else:
-            if databaseUsername == 'diary_management' and databasePassword == 'C0mput3r$c13nc3':
+            if databaseUsername == 'diary_management' and databasePassword == 'root':
                 strikes = 0
                 databaseSubmitButton.destroy()
                 blankSpace.config(bg='#F0F0F0', fg='#F0F0F0')
@@ -104,18 +128,13 @@ def login():
                 passwordInput.delete(0, END)
 
                 # If having trouble connecting, check that the user and password are correct
-                global db
-                global cursor
                 db = mysql.connector.connect(
                     host="localhost",
                     # Username and password must be the same as in mySQL
                     user="root",
-                    password="Jackie2013",
-                    database="diary_management"
-                    # password = "C0mput3r$c13nc3",
-                    # database = "diary_management"
+                    password=databasePassword,
+                    database=databaseUsername
                 )
-
                 cursor = db.cursor()
             else:
                 blankSpace.config(bg='#F0F0F0', fg='#F0F0F0')
@@ -150,7 +169,6 @@ def login():
         backButton.place(x=280, y=460)
 
     def createAccount():
-        global username
         username = usernameInput.get()
         password = passwordInput.get()
         passwordCheck = passwordCheckInput.get()
@@ -302,6 +320,7 @@ def login():
 
 
 def userMainMenuFunction():
+    global username
     userMainMenu = tk.Tk()
     userMainMenu.title('User Main Menu')
     userMainMenu.geometry('1500x700')
@@ -326,9 +345,14 @@ def userMainMenuFunction():
     # LT2.config(bg="light blue", fg="White")
 
     def diary():
-        # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+    # connect to the database
+        db = mysql.connector.connect(
+            host="localhost",
+            # Username and password must be the same as in mySQL
+            user="root",
+            password=databasePassword,
+            database=databaseUsername
+        )
 
         # create cursor
         cursor = db.cursor()
@@ -343,6 +367,8 @@ def userMainMenuFunction():
         # Close Connection
         db.close()
 
+
+
     # diary button
     diaryBtn = Button(userMainMenu, text="Open Diary", command=diary)
     diaryBtn.grid(row=3, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
@@ -350,8 +376,13 @@ def userMainMenuFunction():
     # Record function
     def viewRecords():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         # create cursor
         cursor = db.cursor()
@@ -377,13 +408,18 @@ def userMainMenuFunction():
         record_label1.grid_columnconfigure(1, weight=1)
 
         def searchRecords():
-            db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                         database="diary_management")
+            db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
             cursor = db.cursor()
 
             search1 = search.get()
 
-            cursor.execute("""Select * from Records where record_id = %s """, (search1,))
+            cursor.execute("""Select * from Records where record_name = %s """, (search1,))
             results = cursor.fetchall()
             print('past results')
             print(results)
@@ -397,7 +433,7 @@ def userMainMenuFunction():
             result_label.grid(row=10, column=3, columnspan=1)
             result_label.grid_columnconfigure(1, weight=1)
             result_label.grid_rowconfigure(1, weight=1)
-            # recordIDInput.delete(0, END)
+            result_label.delete(0, END)
             db.commit()
             db.close()
 
@@ -426,8 +462,13 @@ def userMainMenuFunction():
     # create record function
     def createRecords():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         # create cursor
         cursor = db.cursor()
@@ -447,35 +488,6 @@ def userMainMenuFunction():
     createRecordsBtn.grid(row=5, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
 
     # admin function
-    def viewAdmins():
-        # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
-
-        # create cursor
-        cursor = db.cursor()
-
-        adminWindow = Toplevel(userMainMenu)
-        adminWindow.title("Admins")
-        adminWindow.geometry("200x200")
-
-        # view records
-        cursor.execute("SELECT * FROM Admins")
-        admins = cursor.fetchall()
-        print(admins)
-
-        print_admins = ' '
-
-        # loop through records
-        for admin in admins:
-            print_admins += str('Admin Name: ' + admin[1]) + '\n'
-        admin_label = Label(adminWindow, text=print_admins)
-        admin_label.grid(row=4, column=3, columnspan=2)
-
-        # Commit Changes
-        db.commit()
-        # Close Connection
-        db.close()
 
     # admin button
     viewAdminsBtn = Button(userMainMenu, text="View Admins", command=viewAdmins)
@@ -484,8 +496,13 @@ def userMainMenuFunction():
     # planner function
     def viewPlanner():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         # create cursor
         cursor = db.cursor()
@@ -503,8 +520,13 @@ def userMainMenuFunction():
 
     def viewGroups():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         # create cursor
         cursor = db.cursor()
@@ -518,12 +540,12 @@ def userMainMenuFunction():
         _groups = cursor.fetchall()
         print(_groups)
 
-        print_groups = 0
+        print_groups = ''
 
-        # loop through records
+        # loop through groups
         for group in _groups:
-            print_groups += group[0]
-        groupID_label = Label(groupsWindow, text='Group IDS: ')
+            print_groups += str('Group ID: ' + str(group[0]) + ' | ' + 'Creator_ID: ' + str(group[1])) + '\n\n'
+        groupID_label = Label(groupsWindow, text='Groups: ')
         groupID_label.grid(row=2, column=0, columnspan=1)
         group_label = Label(groupsWindow, text=print_groups)
         group_label.grid(row=3, column=0, columnspan=1)
@@ -531,8 +553,14 @@ def userMainMenuFunction():
         group_label.grid_columnconfigure(1, weight=1)
 
         def searchGroups():
-            db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                         database="diary_management")
+            global Creator_ID
+            db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
             cursor = db.cursor()
 
             # global recordID
@@ -546,18 +574,9 @@ def userMainMenuFunction():
             print(results)
             print('past results2 ')
 
-            print_result = 0
-
-            for result in results:
-                label = Label(groupsWindow, text='Group ID: ')
-                label.grid(row=10, column=2, columnspan=1)
-                print_result += result[0]
-            result_label = Label(groupsWindow, text=print_result)
-            result_label.grid(row=10, column=3, columnspan=1)
-
-            # recordIDInput.delete(0, END)
-            db.commit()
-            db.close()
+            if(len(results) != 0):
+                Creator_ID = results[0]
+                groupMainMenuFunction()
 
             # Commit Changes
         db.commit()
@@ -583,14 +602,19 @@ def userMainMenuFunction():
 
     def createGroups():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
         # create cursor
         cursor = db.cursor()
-
+        groupCreation()
         userMainMenu.destroy()
         print('made it past userMainMenu.destroy()')
-        groupMainMenuFunction()
+
         print('opened groups.py')
 
         # Commit Changes
@@ -616,197 +640,40 @@ def userMainMenuFunction():
     print(db.is_connected())
     userMainMenu.mainloop()
 
+def viewAdmins():
+    # connect to the database
+    db = mysql.connector.connect(
+                host="localhost",
+                # Username and password must be the same as in mySQL
+                user="root",
+                password=databasePassword,
+                database=databaseUsername
+            )
 
-def adminMenuFunction():
-    class AdminMenu:
-        def __init__(self, master, db_connection):
-            self.master = master
-            self.db_connection = db_connection
+    # create cursor
+    cursor = db.cursor()
 
-            self.master.title("Administrator's Main Menu")
-            self.master.geometry("1920x1080")
-            self.master.configure(bg="light blue")
+    adminWindow = tk.Tk()
+    adminWindow.title("Admins")
+    adminWindow.geometry("200x200")
 
-            self.admin_menu_label = tk.Label(master, text="Administrator's Main Menu", font=("Helvetica", 16),
-                                             bg="#ADD8E6")
-            self.admin_menu_label.pack(pady=10)
+    # view records
+    cursor.execute("SELECT * FROM Admins")
+    admins = cursor.fetchall()
+    print(admins)
 
-            self.adminee_requests_button = tk.Button(master, text="Browse Adminee Requests",
-                                                     command=self.browse_requests)
-            self.adminee_requests_button.pack(pady=5)
+    print_admins = ' '
 
-            self.view_adminees_button = tk.Button(master, text="View Established Adminees", command=self.view_adminees)
-            self.view_adminees_button.pack(pady=5)
+    # loop through records
+    for admin in admins:
+        print_admins += str('Admin Name: ' + admin[1]) + '\n'
+    admin_label = Label(adminWindow, text=print_admins)
+    admin_label.grid(row=4, column=3, columnspan=2)
 
-            self.logout_button = tk.Button(master, text="Logout", command=self.logout)
-            self.logout_button.pack(pady=5)
-
-            # Text widget to display fetched data
-            self.data_text = tk.Text(master, width=50, height=10)
-            self.data_text.pack()
-
-        def browse_requests(self):
-            # Fetch adminee requests from DB
-            query = "SELECT * FROM Admin_Adminee_Requests"
-            cursor = self.db_connection.cursor()
-            cursor.execute(query)
-            adminee_requests = cursor.fetchall()
-            cursor.close()
-
-            # Clear old data
-            self.data_text.delete(1.0, tk.END)
-
-            # Display fetched data with accept and deny buttons
-            for request in adminee_requests:
-                if len(request) == 2:  # Check if request contains admin_id and creator_id only
-                    admin_id, creator_id = request
-
-                    # Display request details and buttons
-                    self.data_text.insert(tk.END, f"Admin ID: {admin_id}, Creator ID: {creator_id}\n")
-                    accept_button = tk.Button(self.master, text="Accept",
-                                              command=lambda admin=admin_id, creator=creator_id: self.accept_request(
-                                                  admin, creator))
-                    accept_button.pack(side=tk.LEFT, padx=5)
-                    deny_button = tk.Button(self.master, text="Deny",
-                                            command=lambda admin=admin_id, creator=creator_id: self.deny_request(admin,
-                                                                                                                 creator))
-                    deny_button.pack(side=tk.LEFT, padx=5)
-                    self.data_text.window_create(tk.END, window=accept_button)
-                    self.data_text.window_create(tk.END, window=deny_button)
-                else:
-                    self.data_text.insert(tk.END, "Error\n")
-
-        def view_adminees(self):
-            # Fetches established adminees from the DB
-            query = "SELECT * FROM Admin_Adminee_Established"
-            cursor = self.db_connection.cursor()
-            cursor.execute(query)
-            adminees = cursor.fetchall()
-            cursor.close()
-
-            # Clear old data
-            self.data_text.delete(1.0, tk.END)
-
-            for adminee in adminees:
-                if len(adminee) >= 2:  # Check if adminee data contains admin_id and creator_id
-                    admin_id, creator_id = adminee[:2]  # Extract Admin ID and Creator ID
-                    self.data_text.insert(tk.END, f"Admin ID: {admin_id}, Creator ID: {creator_id}\n")
-                else:
-                    self.data_text.insert(tk.END, "Error\n")
-
-        def logout(self):
-            # Closes window
-            self.master.destroy()
-
-        def accept_request(self, admin_id, creator_id):
-            # Execute query to accept the request
-            query = f"UPDATE Admin_Users SET Adminee_Status = 'Established' WHERE Admin_ID = {admin_id} AND Creator_ID = {creator_id}"
-            cursor = self.db_connection.cursor()
-            cursor.execute(query)
-            self.db_connection.commit()
-            cursor.close()
-            messagebox.showinfo("Success", "Request accepted successfully")
-            self.browse_requests()  # Refresh the request list after accepting
-
-        def deny_request(self, admin_id, creator_id):
-            # Execute query to deny the request
-            query = f"DELETE FROM Admin_Users WHERE Admin_ID = {admin_id} AND Creator_ID = {creator_id}"
-            cursor = self.db_connection.cursor()
-            cursor.execute(query)
-            self.db_connection.commit()
-            cursor.close()
-            messagebox.showinfo("Success", "Request denied successfully")
-            self.browse_requests()  # Refresh the request list after denying
-
-    def main():
-        # Establish connection to the MySQL DB
-        db_connection = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                                database="diary_management")
-
-        root = tk.Tk()
-        app = AdminMenu(root, db_connection)
-        root.mainloop()
-
-    if __name__ == "__main__":
-        main()
-    if __name__ == "__main__":
-        main()
-
-
-def groupMainMenuFunction():
-    groupMainMenu = tk.Tk()
-    groupMainMenu.title('Group Main Menu')
-    groupMainMenu.geometry('1500x700')
-    groupMainMenu.config(bg='light blue')
-
-    def logout():
-        groupMainMenu.destroy()
-        login()
-
-    def backToMainMenu():
-        groupMainMenu.destroy()
-        userMainMenuFunction()
-
-    backButton = tk.Button(groupMainMenu, text='Back', width=10, padx=10, bg='darkred', fg='white',
-                           command=backToMainMenu)
-    backButton.pack(side=TOP, anchor=NW)
-
-    # Welcome
-    LT = tk.Label(groupMainMenu, text="Group Main Page", font=('Times', 50))
-    LT.pack(expand=True)
-    LT.config(bg="light blue", fg="white")
-
-    # Profile
-    LT2 = tk.Label(groupMainMenu, text="GroupName = Team1", font=('Times', 20))
-    LT2.pack(side=tk.TOP, expand=False, fill=None)
-    LT2.config(bg="light blue", fg="White")
-
-    LT1 = tk.Label(groupMainMenu, text="Member Count = 3", font=('Times', 20))
-    LT1.pack(side=tk.TOP, expand=False, fill=None)
-    LT1.config(bg="light blue", fg="White")
-
-    LT3 = tk.Label(groupMainMenu, text="Group Members = Karina01, Jay02, Fin20", font=('Times', 20))
-    LT3.pack(side=tk.TOP, expand=False, fill=None)
-    LT3.config(bg="light blue", fg="White")
-
-    # Menu Intro
-    LT0 = tk.Label(groupMainMenu, text="Main Menu", font=('Times', 25))
-    LT0.pack(side=TOP, expand=True)
-    LT0.config(bg="light blue", fg="white")
-
-    # Planner
-    plannerValues = ["View Group Planner"]
-
-    variable1 = StringVar(groupMainMenu)
-    variable1.set("Planner")
-
-    p = OptionMenu(groupMainMenu, variable1, *plannerValues)
-    p.pack(side=tk.TOP, expand=False, fill=None)
-    p.config(width=33, height=4, bg="light blue", fg="black")
-
-    # Group Diary
-    groupValues = ["View Group Diary"]
-
-    variable2 = StringVar(groupMainMenu)
-    variable2.set("Group")
-
-    g = OptionMenu(groupMainMenu, variable2, *groupValues)
-    g.pack(side=tk.TOP, expand=False, fill=None)
-    g.config(width=34, height=4, bg="light blue", fg="black")
-
-    # Admin
-    adminValues = ["View Admins", "Admin Requests"]
-
-    variable3 = StringVar(groupMainMenu)
-    variable3.set("Admin")
-
-    a = OptionMenu(groupMainMenu, variable3, *adminValues)
-    a.pack(side=tk.TOP, expand=False, fill=None)
-    a.config(width=34, height=4, bg="light blue", fg="black")
-
-    # logout button
-    logoutButton = tk.Button(text="Logout", width=15, height=2, bg="blue", fg="black", command=logout)
-    logoutButton.pack(side=tk.BOTTOM, expand=False, fill=None)
+    # Commit Changes
+    db.commit()
+    # Close Connection
+    db.close()
 
 
 def recordsFunction():
@@ -821,12 +688,18 @@ def recordsFunction():
     # create function
 
     def create():
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013", database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
         cursor = db.cursor()
 
-        record_ID = recordIDInput.get()
+        Group_ID = groupIDinput.get()
         record_name1 = recordName.get()
-        diary_ID1 = diaryID.get()
+        Creator_ID = diaryID.get()
         in_gallery1 = inGallery.get()
         # record_age1 = recordAge.get()
         record_description1 = recordDescription.get()
@@ -838,14 +711,14 @@ def recordsFunction():
 
         cursor.execute(
             """insert into records(record_id, diary_id, in_gallery, gallery_id, creation_date, record_age, record_name, record_description)value (%s, %s, %s, null, current_date , 0, %s, %s)""",
-            (record_ID, diary_ID1, in_gallery1, record_name1, record_description1))
+            (Group_ID, Creator_ID, in_gallery1, record_name1, record_description1))
 
         db.commit()
         db.close()
 
         # Clear textbox
         recordName.delete(0, END)
-        recordIDInput.delete(0, END)
+        groupIDinput.delete(0, END)
         diaryID.delete(0, END)
         inGallery.delete(0, END)
         # galleryID.delete(0, END)
@@ -862,8 +735,8 @@ def recordsFunction():
     intro.config(bg="light blue", fg="white")
 
     # create textboxes
-    recordIDInput = Entry(createrecordPage, width=10)
-    recordIDInput.grid(row=2, column=0, padx=20)
+    groupIDinput = Entry(createrecordPage, width=10)
+    groupIDinput.grid(row=2, column=0, padx=20)
 
     diaryID = Entry(createrecordPage, width=10)
     diaryID.grid(row=4, column=0, padx=20)
@@ -920,6 +793,77 @@ def recordsFunction():
     db.commit()
     db.close()
 
+def groupCreation():
+    creategroupPage = tk.Tk()
+    creategroupPage.title('Group Creation Page')
+    creategroupPage.geometry('1500x700')
+    creategroupPage.config(bg='light blue')
+
+    creategroupPage.grid_rowconfigure(0, weight=1)
+    creategroupPage.grid_columnconfigure(0, weight=1)
+
+    # create function
+
+    def create():
+        
+        global Creator_ID
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
+        cursor = db.cursor()
+
+        Group_ID = groupIDinput.get()
+
+        # set foriegn keys = 0
+        cursor.execute('SET FOREIGN_KEY_CHECKS = 0;')
+        print('SET FOREIGN_KEY_CHECKS = 0;')
+
+        cursor.execute(
+            """insert into _groups(Group_ID, Creator_ID, Creation_Date, Group_Age, Member_Num) value (%s, %s, current_date , 0, 0)""",
+            (Group_ID, 5))
+
+        db.commit()
+        db.close()
+
+        # Clear textbox
+        groupIDinput.delete(0, END)
+
+
+    def backToMainMenu():
+        creategroupPage.destroy()
+        userMainMenuFunction()
+
+    # Intro
+    intro = tk.Label(creategroupPage, text="Create Group", font=('Helvetica', 40))
+    intro.grid(row=0, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
+    intro.config(bg="light blue", fg="white")
+
+    # create textboxes
+    groupIDinput = Entry(creategroupPage, width=10)
+    groupIDinput.grid(row=2, column=0, padx=20)
+
+ 
+    # create textbox labels
+    groupIDLabel = Label(creategroupPage, text="Group ID:")
+    groupIDLabel.grid(row=1, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
+
+    # create button
+    createBtn = Button(creategroupPage, text="Create", command=create)
+    createBtn.grid(row=17, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
+
+    backButton = Button(creategroupPage, text='Back', width=10, padx=10, bg='darkred', fg='white',
+                           command=backToMainMenu)
+    backButton.grid(row=0, column=0, sticky='nw')
+
+    creategroupPage.mainloop()
+
+    db.commit()
+    db.close()
+
 
 def galleriesFunction():
     creategalleriePage = tk.Tk()
@@ -933,8 +877,13 @@ def galleriesFunction():
     # create function
 
     def createGallery():
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
         cursor = db.cursor()
 
         date = datetime.today().strftime('%Y-%m-%d')
@@ -1034,8 +983,13 @@ def diaryFunction():
     # view records function
     def viewRecords():
         # connect ot the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         # create cursor
         cursor = db.cursor()
@@ -1061,8 +1015,13 @@ def diaryFunction():
         record_label.grid_columnconfigure(1, weight=1)
 
         def searchRecords():
-            db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                         database="diary_management")
+            db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
             cursor = db.cursor()
 
             # global recordID
@@ -1083,7 +1042,7 @@ def diaryFunction():
             result_label = Label(recordWindow, text=print_result)
             result_label.grid(row=10, column=3, columnspan=1)
 
-            # recordIDInput.delete(0, END)
+            # groupIDinput.delete(0, END)
             db.commit()
             db.close()
 
@@ -1111,8 +1070,13 @@ def diaryFunction():
     # create records function
     def createRecords():
         # connect ot the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
         # create cursor
         cursor = db.cursor()
 
@@ -1133,8 +1097,13 @@ def diaryFunction():
     # view galleries function
     def viewGalleries():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         # create cursor
         cursor = db.cursor()
@@ -1169,8 +1138,13 @@ def diaryFunction():
     # create galleries function
     def createGalleries():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
         # create cursor
         cursor = db.cursor()
 
@@ -1192,8 +1166,13 @@ def diaryFunction():
 
     def logout():
         # connect to the database
-        db = mysql.connector.connect(host="localhost", user="root", password="Jackie2013",
-                                     database="diary_management")
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         # create cursor
         cursor = db.cursor()
@@ -1540,15 +1519,207 @@ def plannerFunction():
 
     def main():
         # establish connection to the MySQL DB
-        db_connection = mysql.connector.connect(host="localhost", user="root", password=databasePassword,
-                                                database=databaseUsername)
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
 
         root = tk.Tk()
-        app = PlannerPage(root, db_connection)
+        app = PlannerPage(root, db)
         root.mainloop()
 
     if __name__ == "__main__":
         main()
+
+
+def adminMenuFunction():
+    class AdminMenu:
+        def __init__(self, master, db_connection):
+            self.master = master
+            self.db_connection = db_connection
+
+            self.master.title("Administrator's Main Menu")
+            self.master.geometry("1920x1080")
+            self.master.configure(bg="light blue")
+
+            self.admin_menu_label = tk.Label(master, text="Administrator's Main Menu", font=("Helvetica", 16),
+                                             bg="#ADD8E6")
+            self.admin_menu_label.pack(pady=10)
+
+            self.adminee_requests_button = tk.Button(master, text="Browse Adminee Requests",
+                                                     command=self.browse_requests)
+            self.adminee_requests_button.pack(pady=5)
+
+            self.view_adminees_button = tk.Button(master, text="View Established Adminees", command=self.view_adminees)
+            self.view_adminees_button.pack(pady=5)
+
+            self.logout_button = tk.Button(master, text="Logout", command=self.logout)
+            self.logout_button.pack(pady=5)
+
+            # Text widget to display fetched data
+            self.data_text = tk.Text(master, width=50, height=10)
+            self.data_text.pack()
+
+        def browse_requests(self):
+            # Fetch adminee requests from DB
+            query = "SELECT * FROM Admin_Adminee_Requests"
+            cursor = self.db_connection.cursor()
+            cursor.execute(query)
+            adminee_requests = cursor.fetchall()
+            cursor.close()
+
+            # Clear old data
+            self.data_text.delete(1.0, tk.END)
+
+            # Display fetched data with accept and deny buttons
+            for request in adminee_requests:
+                if len(request) == 2:  # Check if request contains admin_id and creator_id only
+                    admin_id, creator_id = request
+
+                    # Display request details and buttons
+                    self.data_text.insert(tk.END, f"Admin ID: {admin_id}, Creator ID: {creator_id}\n")
+                    accept_button = tk.Button(self.master, text="Accept",
+                                              command=lambda admin=admin_id, creator=creator_id: self.accept_request(
+                                                  admin, creator))
+                    accept_button.pack(side=tk.LEFT, padx=5)
+                    deny_button = tk.Button(self.master, text="Deny",
+                                            command=lambda admin=admin_id, creator=creator_id: self.deny_request(admin,
+                                                                                                                 creator))
+                    deny_button.pack(side=tk.LEFT, padx=5)
+                    self.data_text.window_create(tk.END, window=accept_button)
+                    self.data_text.window_create(tk.END, window=deny_button)
+                else:
+                    self.data_text.insert(tk.END, "Error\n")
+
+        def view_adminees(self):
+            # Fetches established adminees from the DB
+            query = "SELECT * FROM Admin_Adminee_Established"
+            cursor = self.db_connection.cursor()
+            cursor.execute(query)
+            adminees = cursor.fetchall()
+            cursor.close()
+
+            # Clear old data
+            self.data_text.delete(1.0, tk.END)
+
+            for adminee in adminees:
+                if len(adminee) >= 2:  # Check if adminee data contains admin_id and creator_id
+                    admin_id, creator_id = adminee[:2]  # Extract Admin ID and Creator ID
+                    self.data_text.insert(tk.END, f"Admin ID: {admin_id}, Creator ID: {creator_id}\n")
+                else:
+                    self.data_text.insert(tk.END, "Error\n")
+
+        def logout(self):
+            # Closes window
+            self.master.destroy()
+
+        def accept_request(self, admin_id, creator_id):
+            # Execute query to accept the request
+            query = f"UPDATE Admin_Users SET Adminee_Status = 'Established' WHERE Admin_ID = {admin_id} AND Creator_ID = {creator_id}"
+            cursor = self.db_connection.cursor()
+            cursor.execute(query)
+            self.db_connection.commit()
+            cursor.close()
+            messagebox.showinfo("Success", "Request accepted successfully")
+            self.browse_requests()  # Refresh the request list after accepting
+
+        def deny_request(self, admin_id, creator_id):
+            # Execute query to deny the request
+            query = f"DELETE FROM Admin_Users WHERE Admin_ID = {admin_id} AND Creator_ID = {creator_id}"
+            cursor = self.db_connection.cursor()
+            cursor.execute(query)
+            self.db_connection.commit()
+            cursor.close()
+            messagebox.showinfo("Success", "Request denied successfully")
+            self.browse_requests()  # Refresh the request list after denying
+
+    def main():
+        # Establish connection to the MySQL DB
+        db = mysql.connector.connect(
+                    host="localhost",
+                    # Username and password must be the same as in mySQL
+                    user="root",
+                    password=databasePassword,
+                    database=databaseUsername
+                )
+
+        root = tk.Tk()
+        app = AdminMenu(root, db)
+        root.mainloop()
+
+    if __name__ == "__main__":
+        main()
+
+
+def groupMainMenuFunction():
+    groupMainMenu = tk.Tk()
+    groupMainMenu.title('Group Main Menu')
+    groupMainMenu.geometry('1500x700')
+    groupMainMenu.config(bg='light blue')
+
+    def viewPlanner():
+        pass
+
+    def viewDiary():
+        pass
+    def viewAdmin():
+        pass
+    def logout():
+        groupMainMenu.destroy()
+        login()
+
+    def backToMainMenu():
+        groupMainMenu.destroy()
+        userMainMenuFunction()
+
+
+    backButton = tk.Button(groupMainMenu, text='Back', width=10, padx=10, bg='darkred', fg='white',
+                           command=backToMainMenu)
+    backButton.pack(side=TOP, anchor=NW)
+
+    # Welcome
+    LT = tk.Label(groupMainMenu, text="Group Main Page", font=('Times', 50))
+    LT.pack(expand=True)
+    LT.config(bg="light blue", fg="white")
+
+    # Profile
+    LT2 = tk.Label(groupMainMenu, text="GroupName = Team1", font=('Times', 20))
+    LT2.pack(side=tk.TOP, expand=False, fill=None)
+    LT2.config(bg="light blue", fg="White")
+
+    LT1 = tk.Label(groupMainMenu, text="Member Count = 3", font=('Times', 20))
+    LT1.pack(side=tk.TOP, expand=False, fill=None)
+    LT1.config(bg="light blue", fg="White")
+
+    LT3 = tk.Label(groupMainMenu, text="Group Members = Karina01, Jay02, Fin20", font=('Times', 20))
+    LT3.pack(side=tk.TOP, expand=False, fill=None)
+    LT3.config(bg="light blue", fg="White")
+
+    # Menu Intro
+    LT0 = tk.Label(groupMainMenu, text="Main Menu", font=('Times', 25))
+    LT0.pack(side=TOP, expand=True)
+    LT0.config(bg="light blue", fg="white")
+
+    # Planner  
+    p = Button(groupMainMenu,text = "View Group Planner",command=plannerFunction)
+    p.pack(side=tk.TOP, expand=False, fill=None)
+    p.config(width=33, height=4, bg="light blue", fg="black")
+
+    # Group Diary
+    g = Button(groupMainMenu, text="View Group Diary", command=diaryFunction)
+    g.pack(side=tk.TOP, expand=False, fill=None)
+    g.config(width=34, height=4, bg="light blue", fg="black")
+
+    # Admin
+
+    a = Button(groupMainMenu,text="View Admins",command=viewAdmins)
+    a.pack(side=tk.TOP, expand=False, fill=None)
+    a.config(width=34, height=4, bg="light blue", fg="black")
+
+
 
 
 login()
