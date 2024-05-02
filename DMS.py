@@ -81,7 +81,7 @@ def login():
                     print(strikes)
                 elif strikes == 3:
                     loginWindow.destroy();
-                    quit()
+                    #quit()
             else:
                 strikes = 0
                 # Code to go to the main menu
@@ -110,7 +110,7 @@ def login():
             warningTitle.config(bg='#F0F0F0', fg='#F0F0F0')
             warning.config(bg='#F0F0F0', fg='#F0F0F0')
         else:
-            if databaseUsername == 'diary_management' and databasePassword == 'root':
+            if databaseUsername == 'diary_management' and databasePassword == 'C0mput3r$c13nc3':
                 strikes = 0
                 databaseSubmitButton.destroy()
                 blankSpace.config(bg='#F0F0F0', fg='#F0F0F0')
@@ -151,7 +151,7 @@ def login():
                     print(strikes)
                 elif strikes == 3:
                     loginWindow.destroy();
-                    quit()
+                    #quit()
 
     def createAccountPage():
         usernameInput.delete(0, END)
@@ -169,6 +169,7 @@ def login():
         backButton.place(x=280, y=460)
 
     def createAccount():
+        global username
         username = usernameInput.get()
         password = passwordInput.get()
         passwordCheck = passwordCheckInput.get()
@@ -206,12 +207,8 @@ def login():
                 print(date)
 
                 cursor.execute("""INSERT into Creators(Creator_ID, Creator_Type) value (%s, 'User')""", (num,))
-                cursor.execute(
-                    """INSERT into users(user_id, username, password, has_admin, admin_id, creation_date, account_age) value (%s, %s, %s, 'No', null, %s, 0)""",
-                    (num, username, password, date))
-                cursor.execute(
-                    """SELECT user_id, username, password, has_admin, admin_id, creation_date, account_age FROM Users WHERE username=%s""",
-                    (username,))
+                cursor.execute("""INSERT into users(user_id, username, password, has_admin, admin_id, creation_date, account_age) value (%s, %s, %s, 'No', null, %s, 0)""", (num, username, password, date))
+                cursor.execute("""SELECT user_id, username, password, has_admin, admin_id, creation_date, account_age FROM Users WHERE username=%s""", (username,))
                 found = cursor.fetchall()
                 print(found)
 
@@ -245,7 +242,7 @@ def login():
 
     def exitFunction():
         loginWindow.destroy()
-        quit()
+        #quit()
 
     # Visuals Setup
     # Note: It is important to separate .grid and .place from the original section, otherwise we cannot get the values from the Entry objects
@@ -320,7 +317,7 @@ def login():
 
 
 def userMainMenuFunction():
-    global username
+    #global username
     userMainMenu = tk.Tk()
     userMainMenu.title('User Main Menu')
     userMainMenu.geometry('1500x700')
@@ -433,7 +430,7 @@ def userMainMenuFunction():
             result_label.grid(row=10, column=3, columnspan=1)
             result_label.grid_columnconfigure(1, weight=1)
             result_label.grid_rowconfigure(1, weight=1)
-            result_label.delete(0, END)
+            #result_label.delete(0, END)
             db.commit()
             db.close()
 
@@ -576,6 +573,8 @@ def userMainMenuFunction():
 
             if(len(results) != 0):
                 Creator_ID = results[0]
+                groupsWindow.destroy()
+                userMainMenu.destroy()
                 groupMainMenuFunction()
 
             # Commit Changes
@@ -611,8 +610,8 @@ def userMainMenuFunction():
                 )
         # create cursor
         cursor = db.cursor()
-        groupCreation()
         userMainMenu.destroy()
+        groupCreation()
         print('made it past userMainMenu.destroy()')
 
         print('opened groups.py')
@@ -774,7 +773,7 @@ def recordsFunction():
     # recordAgeLabel = Label(createrecordPage, text="Record Age:")
     # recordAgeLabel.grid(row=11, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
 
-    inGalleryLabel = Label(createrecordPage, text=" (Yes or No):")
+    inGalleryLabel = Label(createrecordPage, text="In a Gallery (Yes or No):")
     inGalleryLabel.grid(row=13, column=0, columnspan=3, pady=10, padx=10, ipadx=100)
 
     recordDescriptionLabel = Label(createrecordPage, text="Record Description:")
@@ -1615,6 +1614,7 @@ def adminMenuFunction():
         def logout(self):
             # Closes window
             self.master.destroy()
+            login()
 
         def accept_request(self, admin_id, creator_id):
             # Execute query to accept the request
@@ -1661,12 +1661,18 @@ def groupMainMenuFunction():
     groupMainMenu.config(bg='light blue')
 
     def viewPlanner():
+        groupMainMenu.destroy()
+        plannerFunction()
         pass
 
     def viewDiary():
+        groupMainMenu.destroy()
+        diaryFunction()
         pass
-    def viewAdmin():
-        pass
+    
+    #def viewAdmin():
+        #pass
+    
     def logout():
         groupMainMenu.destroy()
         login()
@@ -1704,12 +1710,12 @@ def groupMainMenuFunction():
     LT0.config(bg="light blue", fg="white")
 
     # Planner  
-    p = Button(groupMainMenu,text = "View Group Planner",command=plannerFunction)
+    p = Button(groupMainMenu,text = "View Group Planner",command=viewPlanner)
     p.pack(side=tk.TOP, expand=False, fill=None)
     p.config(width=33, height=4, bg="light blue", fg="black")
 
     # Group Diary
-    g = Button(groupMainMenu, text="View Group Diary", command=diaryFunction)
+    g = Button(groupMainMenu, text="View Group Diary", command=viewDiary)
     g.pack(side=tk.TOP, expand=False, fill=None)
     g.config(width=34, height=4, bg="light blue", fg="black")
 
